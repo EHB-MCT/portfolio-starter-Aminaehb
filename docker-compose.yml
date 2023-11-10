@@ -9,7 +9,14 @@ services:
     volumes:
       - ./images/api/src:/usr/app/src
     environment:
-      PG_CONNECTION_STRING: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@store:5432/${POSTGRES_DB}"
+      POSTGRES_USER: 
+      POSTGRES_PASSWORD: 
+      POSTGRES_DB: 
+      POSTGRES_HOST: store
+    depends_on:
+      store:
+        condition: service_healthy 
+    
 
 
   store:
@@ -18,8 +25,13 @@ services:
       - 5432:5432
     environment:
       POSTGRES_USER:
-      POSTGRES_PASSWORD:
+      POSTGRES_PASSWORD: 
       POSTGRES_DB:
-      POSTGRES_HOSTY_AUTH_METHOD:
+      POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - ./_backup:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
