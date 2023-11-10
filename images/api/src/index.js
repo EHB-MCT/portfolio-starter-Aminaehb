@@ -1,9 +1,15 @@
-const express = require("express")
+const express = require("express");
 const knex = require("knex");
+const dotenv = require('dotenv'); // Add this line
+
+dotenv.config({ path: '.env' }); // Add this line
+
 const app = express();
 
-const knexfile = require("../db/knexfile");
+const knexfile = require("./db/knexfile");
 const db = knex(knexfile.development);
+
+console.log(knexfile)
 app.use(express.json());
 
 /**
@@ -19,7 +25,6 @@ app.get("/", (request, response) => {
 })
 
 
-
 app.listen(3000, (error)=> {
     if(!error){
         console.log("running on port " + 3000);
@@ -28,3 +33,4 @@ app.listen(3000, (error)=> {
         console.error(error)
     }
 })
+
