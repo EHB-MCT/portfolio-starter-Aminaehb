@@ -155,6 +155,40 @@ app.put('/api/students/:id', async (req, res) => {
   }
 });
 
+/**
+ * DELETE endpoint for deleting a specific student by ID.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing either a success message or an error.
+ */
+app.delete('/api/students/:id', async (req, res) => {
+  const studentId = req.params.id;
+
+  try {
+    const deletedCount = await db('students')
+      .where('id', studentId)
+      .del();
+
+    if (deletedCount === 0) {
+      return res.status(404).send({
+        error: "Student not found",
+      });
+    }
+
+    res.status(200).send({
+      message: 'Student deleted successfully',
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      error: "Something went wrong",
+      value: error,
+    });
+  }
+});
+
+
 app.listen(3000, (error)=> {
     if(!error){
         console.log("running on port " + 3000);
