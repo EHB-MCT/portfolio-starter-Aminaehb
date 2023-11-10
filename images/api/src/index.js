@@ -25,6 +25,59 @@ app.get("/", (request, response) => {
 })
 
 /**
+ * GET endpoint for retrieving all students.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing a list of students or an error message.
+ */
+
+app.get('/api/students', async (req, res) => {
+  try {
+    const students = await db('students')
+
+    res.status(200).send(students)
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).send({
+      error: "Something went wrong",
+      value: error
+    });
+  }
+});
+
+/**
+ * GET endpoint for retrieving a specific student by ID.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing the requested student's information or an error message.
+ */
+
+app.get('/api/students/:id', async (req, res) => {
+const studentId = req.params.id;
+try {
+  const student = await db('students').where('id', studentId).first();
+
+  if(!student) {
+    return res.status(404).send({
+      error: "Student not found",
+    });
+  }
+
+  res.status(200).send(student)
+} catch (error) {
+  console.log(error);
+
+  res.status(500).send({
+    error: "Something went wrong",
+    value: error
+  });
+}
+});
+
+/**
  * POST endpoint for creating a new student.
  * 
  * @param - The HTTP request object.
