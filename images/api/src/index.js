@@ -115,6 +115,46 @@ app.post('/api/students', async (req, res) => {
 });
 
 
+/**
+ * PUT endpoint for updating a specific student by ID.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing either a success message or an error.
+ */
+app.put('/api/students/:id', async (req, res) => {
+  const studentId = req.params.id;
+  const { first_name, last_name, age, email } = req.body;
+
+  if (!first_name || !last_name || !age || !email) {
+    return res.status(400).send({
+      error: "Missing or incomplete request data",
+    });
+  }
+
+  try {
+    const updatedCount = await db('students')
+      .where('id', studentId)
+      .update({ first_name, last_name, age, email });
+
+    if (updatedCount === 0) {
+      return res.status(404).send({
+        error: "Student not found",
+      });
+    }
+
+    res.status(200).send({
+      message: 'Student updated successfully',
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      error: "Something went wrong",
+      value: error,
+    });
+  }
+});
+
 app.listen(3000, (error)=> {
     if(!error){
         console.log("running on port " + 3000);
