@@ -1,4 +1,4 @@
-const { checkStudentPostEndpoint } = require ("./../helpers/endpointHelpers.js");
+const { checkStudentFirstName } = require ("./../helpers/endpointHelpers.js");
 
 
 /**
@@ -10,5 +10,15 @@ table.string('email').unique().notNullable();
  */
 
 test("check first_name", () => {
+
+    //what can my user not do
+    expect(checkStudentFirstName("")).toBe(false);
+    expect(checkStudentFirstName(null)).toBe(false);
+    expect(checkStudentFirstName("i")).toBe(false);
+    expect(checkStudentFirstName(1)).toBe(false);
+    expect(checkStudentFirstName("nknnjzenzejkjdebdhoahdzhihazdzbdkhzd")).toBe(false);
+
+    expect(checkStudentFirstName("Amina")).toBe(true);
+    expect(checkStudentFirstName("Mohammed Ali")).toBe(true);
 
 })
