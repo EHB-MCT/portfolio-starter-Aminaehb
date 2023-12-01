@@ -1,4 +1,4 @@
-const { checkStudentFirstName } = require ("./../helpers/endpointHelpers.js");
+const { checkStudentFirstName } = require ("../../helpers/endpointHelpers.js");
 
 
 /**

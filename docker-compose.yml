@@ -16,6 +16,7 @@ services:
     depends_on:
       store:
         condition: service_healthy 
+    tty: true
     
 
 
