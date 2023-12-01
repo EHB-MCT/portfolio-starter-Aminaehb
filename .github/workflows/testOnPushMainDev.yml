@@ -39,7 +39,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ amina709 }}
-          password: ${{ dckr_pat_CwwkolIfZYOJf_LUFZiPTereewQ }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       
       - name: publish
         run: docker-compose push
