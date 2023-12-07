@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('./../../app.js');
-const {v4: uuid} = require("uuid")
+const { v4: uuid } = require("uuid");
 
 const knexfile = require('./../../db/knexfile.js');
 const db = require("knex")(knexfile.development);
