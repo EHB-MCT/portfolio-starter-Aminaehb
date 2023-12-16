@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="./styles.css">
+    <title>Fitness Journey Form</title>
+</head>
+<body>
+
+    <form id="fitnessForm">
+        <label for="fname">First Name</label>
+        <input type="text" id="fname" name="firstname" placeholder="Your name.." required>
+
+        <label for="lname">Last Name</label>
+        <input type="text" id="lname" name="lastname" placeholder="Your last name.." required>
+
+        <label for="age">Age</label>
+        <input type="number" id="age" name="age" placeholder="Your age.." required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Your email.." required>
+
+        <button type="button" id="submitBtn">Submit</button>
+    </form>
+
+    <div id="thankYouMessage" class="hidden">
+        <p id="thankYouText">Thank you for sharing! You'll soon get an email with what you can do to help have a better routine with school.</p>
+        <div id="submittedData"></div>
+        <input type="button" value="Change Answers" onclick="changeAnswers()">
+        <input type="button" value="Delete Data" onclick="deleteData()">
+    </div>
+    <script src="./index.js"></script>
+    </body>
+</html>

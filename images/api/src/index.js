@@ -5,12 +5,22 @@ const dotenv = require('dotenv'); // Add this line
 dotenv.config({ path: '.env' }); // Add this line
 
 const app = express();
-
 const knexfile = require("./db/knexfile");
 const db = knex(knexfile.development);
 
 console.log(knexfile)
 app.use(express.json());
+
+app.use(express.static(__dirname + '/public'));
+
+
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Internal Server Error');
+});
+
 
 /**
  * GET endpoint, providing hello world
