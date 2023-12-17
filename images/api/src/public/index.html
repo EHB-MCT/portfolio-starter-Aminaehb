@@ -16,30 +16,31 @@
         <h3>FITNESS JOURNEY FORM</h3>
         <p>Record your fitness journey during college:</p>
 
-    <form id="fitnessForm">
-        <label for="fname">First Name</label>
-        <input type="text" id="fname" name="firstname" placeholder="Your name.." required>
+        <form id="fitnessForm">
+            <label for="fname">First Name</label>
+            <input type="text" id="fname" name="firstname" placeholder="Your name.." required>
 
-        <label for="lname">Last Name</label>
-        <input type="text" id="lname" name="lastname" placeholder="Your last name.." required>
+            <label for="lname">Last Name</label>
+            <input type="text" id="lname" name="lastname" placeholder="Your last name.." required>
 
-        <label for="age">Age</label>
-        <input type="number" id="age" name="age" placeholder="Your age.." required>
+            <label for="age">Age</label>
+            <input type="number" id="age" name="age" placeholder="Your age.." required>
 
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="Your email.." required>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Your email.." required>
 
-        <button type="button" id="submitBtn">Submit</button>
-    </form>
+            <button type="button" id="submitBtn">Submit</button>
+        </form>
 
-    <div id="thankYouMessage" class="hidden">
-        <p id="thankYouText">Thank you for sharing! You'll soon get an email with what you can do to help have a better routine with school.</p>
-        <div id="submittedData"></div>
-        <input type="button" value="Change Answers" onclick="changeAnswers()">
-        <input type="button" value="Delete Data" onclick="deleteData()">
+        <div id="thankYouMessage" class="hidden">
+            <p id="thankYouText">Thank you for sharing! You'll soon get an email with what you can do to help have a better routine with school.</p>
+            <div id="allStudentsData" class="submitted-data-container"> </div>
+            <input type="button" value="Change Answers" onclick="changeAnswers()">
+            <button id="deleteBtn" onclick="deleteRecord()">Delete Record</button>
+        </div>
+
     </div>
 
-</div>
     <script src="./index.js"></script>
-    </body>
+</body>
 </html>

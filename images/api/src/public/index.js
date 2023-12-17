@@ -1,35 +1,76 @@
 document.getElementById("submitBtn").addEventListener("click", submitForm);
+document.getElementById("deleteBtn").addEventListener("click", deleteRecord);
+
+// Initialize an array to store submitted data
+let allSubmittedData = [];
 
 async function submitForm() {
     const formData = new FormData(document.getElementById("fitnessForm"));
-    const submittedDataDiv = document.getElementById("submittedData");
-
-    const submittedData = {
-        "first_name": formData.get("firstname"),
-        "last_name": formData.get("lastname"),
-        "age": formData.get("age"),
-        "email": formData.get("email"),
-    };
-
-    // Display submitted data and show thank you message
-    submittedDataDiv.innerHTML = Object.entries(submittedData).map(([key, value]) => `<strong>${key}:</strong> ${value}<br>`).join('');
-    document.getElementById("thankYouMessage").classList.remove("hidden");
-    document.getElementById("fitnessForm").classList.add("hidden");
 
     try {
-        // Send a POST request to the server with the submitted data
         const response = await fetch('/api/students', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(submittedData),
+            body: JSON.stringify({
+                "first_name": formData.get("firstname"),
+                "last_name": formData.get("lastname"),
+                "age": formData.get("age"),
+                "email": formData.get("email"),
+            }),
         });
 
-        if (response.ok) console.log('Form submitted successfully!');
-        else console.error('Form submission failed.');
+        if (response.ok) {
+            submittedData = await response.json();
+            console.log('Form submitted successfully:', submittedData);
+            
+            // Add the submitted data to the array
+            allSubmittedData.push(submittedData);
+
+            // Display all submitted data
+            displayAllSubmittedData();
+
+            // Show thank you message and hide the form
+            document.getElementById("thankYouMessage").classList.remove("hidden");
+            document.getElementById("fitnessForm").classList.add("hidden");
+        } else {
+            console.error('Form submission failed.');
+        }
     } catch (error) {
         console.error('Error during form submission:', error);
     }
 }
+
+
+function displayAllSubmittedData() {
+    // Display all submitted data in the 'allStudentsData' div
+    const allStudentsDiv = document.querySelector(".submitted-data-container");
+    allStudentsDiv.innerHTML = allSubmittedData.map(submittedData => {
+        return `
+            <div class="submitted-student">
+                <strong>First Name:</strong> ${submittedData.first_name}<br>
+                <strong>Last Name:</strong> ${submittedData.last_name}<br>
+                <strong>Age:</strong> ${submittedData.age}<br>
+                <strong>Email:</strong> ${submittedData.email}<br>
+            </div>
+        `;
+    }).join('<hr>');
+}
+
+async function deleteRecord() {
+    // Now you can use the submittedData variable here
+    try {
+        const response = await fetch(`/api/students/${submittedData.id}`, {
+            method: 'DELETE',
+        });
+
+        // ... (rest of your existing code)
+    } catch (error) {
+        console.error('Error during record deletion:', error);
+    }
+}
+
+
+// ... (rest of your code remains unchanged)
 
 
 function changeAnswers() {
@@ -70,13 +111,7 @@ function changeAnswers() {
 
 
 
-function deleteData() {
-    // Reset the form and clear submitted data
-    resetForm();
-    submittedData = {};
-    // Clear displayed submitted data
-    clearSubmittedData();
-}
+
 
 function resetForm() {
     // Reset the form and show it again

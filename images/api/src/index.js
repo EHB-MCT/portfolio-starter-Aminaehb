@@ -1,6 +1,9 @@
 const express = require("express");
 const knex = require("knex");
 const dotenv = require('dotenv'); // Add this line
+const path = require('path');
+const cors = require('cors');
+
 
 dotenv.config({ path: '.env' }); // Add this line
 
@@ -10,7 +13,7 @@ const db = knex(knexfile.development);
 
 console.log(knexfile)
 app.use(express.json());
-
+app.use(cors());
 app.use(express.static(__dirname + '/public'));
 
 
@@ -109,23 +112,25 @@ app.post('/api/students', async (req, res) => {
 
   const { id, first_name, last_name, age, email } = req.body;
   try {
-      await db('students').insert({
-          id,
-          first_name,
-          last_name,
-          age,
-          email,
-      });
-      res.status(201).send({
-          message: 'Student created successfully',
-      });
-  } catch (error) {
-      console.error(error);
-      res.status(500).send({
-          error: "Something went wrong",
-          value: error,
-      });
-  }
+    await db('students').insert({
+        id,
+        first_name,
+        last_name,
+        age,
+        email,
+    });
+
+    res.status(201).send({
+        id, // Include the id in the response
+        message: 'Student created successfully',
+    });
+} catch (error) {
+    console.error(error);
+    res.status(500).send({
+        error: "Something went wrong",
+        value: error,
+    });
+}
 });
 
 
