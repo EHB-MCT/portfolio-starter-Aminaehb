@@ -14,6 +14,10 @@ app.use(express.json());
 app.use(express.static(__dirname + '/public'));
 
 
+// Handle requests for the HTML file
+app.get('/threejs', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'threejs.html'));
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
