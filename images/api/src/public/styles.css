@@ -1,20 +1,22 @@
+
 body {
     font-family: Arial;
     margin: 0;
-    overflow: hidden;
+    overflow: hidden; /* Prevent scrolling due to Three.js canvas */
     display: flex;
     align-items: center;
     height: 100vh;
+    color: white;
 }
 
 h3 {
-    font-size: 2em;
-    margin-right: 20px;
+    font-size: 2em; /* You can adjust the size as needed */
+    margin-right: 20px; /* Add some margin between title and form */
 }
 
 p {
-    font-size: 20px;
-    margin-right: 20px;
+    font-size: 20px; /* You can adjust the size as needed */
+    margin-right: 20px; /* Add some margin between title and form */
 }
 
 .background-container {
@@ -35,12 +37,14 @@ p {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-grow: 1;
+    flex-grow: 1; /* Allow the container to grow and take up remaining space */
     border-radius: 5px;
     padding: 20px;
     box-sizing: border-box;
-    margin-left: auto;
+    margin-left: auto; /* Move the container to the right side of the screen */
 }
+
+
 
 form {
     margin-top: 20px;
@@ -48,7 +52,7 @@ form {
 
 input[type=text], input[type=email], select, input[type=number], textarea {
     width: 100%;
-    padding: 10px;
+    padding: 10px; /* Adjust padding to make the form elements smaller */
     margin: 8px 0;
     display: block;
     border: 1px solid #ccc;
@@ -56,17 +60,19 @@ input[type=text], input[type=email], select, input[type=number], textarea {
     box-sizing: border-box;
 }
 
+/* Style for button */
 input[type=button] {
     width: 100%;
     background-color: #f44336;
     color: white;
-    padding: 12px;
+    padding: 12px; /* Adjust padding to make the button smaller */
     margin: 8px 0;
     border: none;
     border-radius: 4px;
     cursor: pointer;
 }
 
+/* Style for clicked button */
 input[type=button].clicked {
     background-color: #d32f2f;
 }
