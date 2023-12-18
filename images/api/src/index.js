@@ -103,35 +103,45 @@ try {
  */
 
 app.post('/api/students', async (req, res) => {
+  console.log('Received POST request:', req.body);
 
   if (!req.body) {
-      return res.status(400).send({
-          error: "Request body is missing or empty",
-      });
+    return res.status(400).json({
+      error: "Request body is missing or empty",
+    });
   }
 
-  const { id, first_name, last_name, age, email } = req.body;
-  try {
-    await db('students').insert({
-        id,
-        first_name,
-        last_name,
-        age,
-        email,
-    });
+  const { first_name, last_name, age, email } = req.body;
 
-    res.status(201).send({
-        id, // Include the id in the response
-        message: 'Student created successfully',
+  try {
+    const [id] = await db('students').insert({
+      first_name,
+      last_name,
+      age,
+      email,
+    }).returning('id');
+  
+    const createdStudent = {
+      id,
+      first_name,
+      last_name,
+      age,
+      email,
+    };
+  
+    console.log('Student inserted successfully:', createdStudent);
+  
+    return res.status(201).json([createdStudent]); // Wrap the object in an array
+  } catch (error) {
+    console.error('Error during student insertion:', error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error.message || "An internal server error occurred",
     });
-} catch (error) {
-    console.error(error);
-    res.status(500).send({
-        error: "Something went wrong",
-        value: error,
-    });
-}
+  }  
 });
+
+
 
 
 /**
@@ -198,6 +208,8 @@ app.delete('/api/students/:id', async (req, res) => {
     res.status(200).send({
       message: 'Student deleted successfully',
     });
+
+    
   } catch (error) {
     console.error(error);
     res.status(500).send({
