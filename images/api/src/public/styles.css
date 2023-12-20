@@ -1,22 +1,13 @@
-
 body {
     font-family: Arial;
     margin: 0;
     overflow: hidden; /* Prevent scrolling due to Three.js canvas */
     display: flex;
     align-items: center;
+    justify-content: center;
     height: 100vh;
-    color: white;
-}
-
-h3 {
-    font-size: 2em; /* You can adjust the size as needed */
-    margin-right: 20px; /* Add some margin between title and form */
-}
-
-p {
-    font-size: 20px; /* You can adjust the size as needed */
-    margin-right: 20px; /* Add some margin between title and form */
+    background-color: #2c3e50; /* Set a background color for the body */
+    color: black; /* Set text color to black */
 }
 
 .background-container {
@@ -30,29 +21,37 @@ p {
 
 .container {
     position: absolute;
-    width: 100%;
-    height: 100%;
+    width: 70%;
+    max-width: 400px;
     z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-grow: 1; /* Allow the container to grow and take up remaining space */
-    border-radius: 5px;
+    border-radius: 8px;
     padding: 20px;
     box-sizing: border-box;
-    margin-left: auto; /* Move the container to the right side of the screen */
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-
+h3 {
+    font-size: 2em;
+    margin-bottom: 15px;
+}
 
 form {
+    width: 100%;
     margin-top: 20px;
 }
 
-input[type=text], input[type=email], select, input[type=number], textarea {
+input[type="text"],
+input[type="email"],
+select,
+input[type="number"],
+textarea {
     width: 100%;
-    padding: 10px; /* Adjust padding to make the form elements smaller */
+    padding: 10px;
     margin: 8px 0;
     display: block;
     border: 1px solid #ccc;
@@ -61,26 +60,45 @@ input[type=text], input[type=email], select, input[type=number], textarea {
 }
 
 /* Style for button */
-input[type=button] {
+input[type="button"] {
     width: 100%;
-    background-color: #f44336;
+    background-color: #3498db;
     color: white;
-    padding: 12px; /* Adjust padding to make the button smaller */
-    margin: 8px 0;
+    padding: 12px;
+    margin: 15px 0;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover effect for button */
+input[type="button"]:hover {
+    background-color: #2980b9;
 }
 
 /* Style for clicked button */
-input[type=button].clicked {
-    background-color: #d32f2f;
+input[type="button"].clicked {
+    background-color: #e74c3c;
+}
+
+#submittedData {
+    margin-top: 20px;
+    color: #2ecc71;
 }
 
 .hidden {
     display: none;
 }
 
-#submittedData {
-    margin-top: 20px;
+.delete-confirmation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 8px;
+    z-index: 999;
 }

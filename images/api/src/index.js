@@ -129,7 +129,6 @@ app.post('/api/students', async (req, res) => {
       email,
     };
   
-    console.log('Student inserted successfully:', createdStudent);
   
     return res.status(201).json([createdStudent]); // Wrap the object in an array
   } catch (error) {
@@ -143,6 +142,8 @@ app.post('/api/students', async (req, res) => {
 
 
 
+
+// ... (previous code)
 
 /**
  * PUT endpoint for updating a specific student by ID.
@@ -201,6 +202,9 @@ app.put('/api/students/:id', async (req, res) => {
       });
     }
 
+    // Log the update information
+    console.log(`Student with ID ${studentId} updated:`, req.body);
+
     res.status(200).send({
       message: 'Student updated successfully',
     });
@@ -234,10 +238,12 @@ app.delete('/api/students/:id', async (req, res) => {
       });
     }
 
+    // Log the delete information
+    console.log(`Student with ID ${studentId} deleted`);
+
     res.status(200).send({
       message: 'Student deleted successfully',
     });
-
     
   } catch (error) {
     console.error(error);
@@ -247,6 +253,8 @@ app.delete('/api/students/:id', async (req, res) => {
     });
   }
 });
+
+// ... (remaining code)
 
 
 app.listen(3000, (error)=> {

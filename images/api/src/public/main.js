@@ -18,7 +18,7 @@ function createDumbbell(xPosition) {
 
   // Create spheres on both ends of the handle
   const sphereGeometry = new THREE.SphereGeometry(0.6, 32, 32);
-  const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+  const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x404040 }); // Set a darker grey color for the spheres
 
   const sphere1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
   sphere1.position.y = 1;

@@ -12,69 +12,49 @@ async function submitForm() {
     const formData = new FormData(document.getElementById("fitnessForm"));
 
     try {
-        // Check if the email already exists
         const existingStudent = allSubmittedData.find(student => student.email === formData.get("email"));
 
-        // Log existingStudent
-        console.log('Existing Student:', existingStudent);
-
         if (existingStudent) {
-            // Handle the case when the email already exists
             console.log('Email already exists. Updating the existing record:', formData.get("email"));
 
-            // Get the ID of the existing record
             const existingStudentId = existingStudent.id;
-
-            // Log existingStudentId
             console.log('Existing Student ID:', existingStudentId);
 
-
-            // Set currentStudentId for the update operation if not set
             if (!currentStudentId) {
                 currentStudentId = existingStudentId;
             }
 
-            // Make a PUT request to update the existing record
-const updateResponse = await fetch(`/api/students/${existingStudentId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        "first_name": formData.get("firstname"),
-        "last_name": formData.get("lastname"),
-        "age": formData.get("age"),
-        "email": formData.get("email"),
-    }),
-});
+            const updateResponse = await fetch(`/api/students/${existingStudentId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    "first_name": formData.get("firstname"),
+                    "last_name": formData.get("lastname"),
+                    "age": formData.get("age"),
+                    "email": formData.get("email"),
+                }),
+            });
 
-// Check if the update response is successful
-if (updateResponse.ok) {
-    try {
-        // Try to parse the response as JSON
-        const updatedData = await updateResponse.json();
+            if (updateResponse.ok) {
+                try {
+                    const updatedData = await updateResponse.json();
+                    // Update the display with the updated data
+                    allSubmittedData.push(updatedData);
+                    displayAllSubmittedData();
 
-        // Update the display with the updated data
-        updateDisplayAfterSubmit(updatedData);
-
-        // Set the form submission flag to false
-        isFormSubmitted = false;
-
-        // Show thank you message and hide the form
-        document.getElementById("thankYouMessage").classList.remove("hidden");
-        document.getElementById("fitnessForm").classList.add("hidden");
-    } catch (error) {
-        // Handle parsing error
-        console.error('Error parsing updated data:', error);
-    }
-} else {
-    console.error('Error during record update:', updateResponse.statusText);
-}
-
-
+                    isFormSubmitted = false;
+                    document.getElementById("thankYouMessage").classList.remove("hidden");
+                    document.getElementById("fitnessForm").classList.add("hidden");
+                } catch (error) {
+                    console.error('Error parsing updated data:', error);
+                }
+            } else {
+                console.error('Error during record update:', updateResponse.statusText);
+            }
 
             return;
         }
 
-        // If the email doesn't exist, proceed with creating a new record
         const response = await fetch('/api/students', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -89,41 +69,32 @@ if (updateResponse.ok) {
         if (response.ok) {
             submittedData = await response.json();
 
-            // Check if submittedData is an array and not empty
             if (Array.isArray(submittedData) && submittedData.length > 0) {
                 const firstElement = submittedData[0];
-                currentStudentId = firstElement.id.id;  // Update this line
+                currentStudentId = firstElement.id.id;
                 console.log('Structure of submittedData:', firstElement);
             } else {
                 console.error('Invalid format of submittedData:', submittedData);
             }
 
-            // Add the submitted data to the array
-            allSubmittedData.push(...submittedData); // Spread the array elements
-
-            // Display all submitted data
+            allSubmittedData.push(...submittedData);
             displayAllSubmittedData();
 
-            // Show thank you message and hide the form
+            // Set the form submission flag to true only after a successful response
+            isFormSubmitted = true;
+            console.log('Form submitted successfully. isFormSubmitted:', isFormSubmitted);
+
             document.getElementById("thankYouMessage").classList.remove("hidden");
             document.getElementById("fitnessForm").classList.add("hidden");
-
-            // Set the form submission flag to true
-            isFormSubmitted = true;
-
-            // Update currentStudentId before leaving the function
-            currentStudentId = submittedData[0].id.id;
         } else {
             console.error('Form submission failed.');
         }
-
     } catch (error) {
         console.error('Error during form submission:', error);
     }
 }
 
 function displayAllSubmittedData() {
-    // Display all submitted data in the 'allStudentsData' div
     const allStudentsDiv = document.querySelector(".submitted-data-container");
     allStudentsDiv.innerHTML = allSubmittedData.map(student => {
         return `
@@ -137,46 +108,11 @@ function displayAllSubmittedData() {
     }).join('<hr>');
 }
 
-
-
 async function updateDisplayAfterSubmit(updatedData) {
-    // Check if the updatedData contains an 'id' property
-    if (updatedData && updatedData.id) {
-        // Find the index of the submitted data to update in the array
-        const dataIndex = allSubmittedData.findIndex(student => student.id.id === updatedData.id.id);
-
-        // Update the data in the array or add it if not found
-        if (dataIndex !== -1) {
-            // Merge the properties of the existing data with the updated data
-            allSubmittedData[dataIndex] = { ...allSubmittedData[dataIndex], ...updatedData };
-
-            // Fetch the latest data from the server after the update
-            const latestDataResponse = await fetch(`/api/students/${currentStudentId}`);
-            const latestData = await latestDataResponse.json();
-
-            // Update the data in the array with the latest data
-            allSubmittedData[dataIndex] = latestData;
-
-            // Update the display with all submitted data
-            displayAllSubmittedData();
-        } else {
-            console.error('Data not found in the array:', updatedData);
-        }
-    } else {
-        console.error('Invalid or missing "id" property in updatedData:', updatedData);
-
-        // If the updatedData doesn't contain 'id', assume it's the success message
-        console.log('Assuming success message:', updatedData.message);
-    }
+    // No need for additional fetch, just update the display
+    allSubmittedData.push(updatedData);
+    displayAllSubmittedData();
 }
-
-
-
-
-
-
-
-
 
 
 async function deleteRecord() {
@@ -184,7 +120,11 @@ async function deleteRecord() {
         // Check if form submission is complete
         if (!isFormSubmitted) {
             console.warn('Waiting for form submission to complete...');
-            return;
+
+            // Wait for form submission to complete (use a loop with a delay)
+            while (!isFormSubmitted) {
+                await new Promise(resolve => setTimeout(resolve, 100)); // Wait for 100 milliseconds
+            }
         }
 
         // Check if submittedData is available and is an array
@@ -203,12 +143,17 @@ async function deleteRecord() {
         if (response.ok) {
             console.log('Record deleted successfully');
 
-            // Append the updated data to the displayed content
-            const updatedData = await response.json();
-            updateDisplayAfterSubmit(updatedData);
+            // Clear submitted data
+            clearSubmittedData();
+
+            // Reset the form
+            resetForm();
 
             // Set the form submission flag to false
             isFormSubmitted = false;
+
+            // Show the delete confirmation popup
+            showDeleteConfirmation();
         } else {
             console.error('Error during record deletion:', response.statusText);
         }
@@ -216,6 +161,36 @@ async function deleteRecord() {
         console.error('Error during record deletion:', error);
     }
 }
+
+function showDeleteConfirmation() {
+    // Create a div element for the popup
+    const popupContainer = document.createElement('div');
+    popupContainer.className = 'delete-confirmation';
+    popupContainer.innerHTML = 'Record deleted successfully!';
+
+    // Style the popup
+    popupContainer.style.position = 'fixed';
+    popupContainer.style.top = '50%';
+    popupContainer.style.left = '50%';
+    popupContainer.style.transform = 'translate(-50%, -50%)';
+    popupContainer.style.padding = '15px';
+    popupContainer.style.background = 'red';
+    popupContainer.style.color = 'white';
+    popupContainer.style.borderRadius = '8px';
+    popupContainer.style.zIndex = '999';
+
+    // Append the popup to the body
+    document.body.appendChild(popupContainer);
+
+    // Remove the popup after a few seconds (adjust as needed)
+    setTimeout(() => {
+        popupContainer.remove();
+    }, 3000);
+}
+
+
+
+
 
 async function updateRecord() {
     try {
@@ -282,12 +257,6 @@ async function updateRecord() {
         console.error('Error during record update:', error);
     }
 }
-
-
-
-
-
-
 
 function changeAnswers() {
     const form = document.getElementById("fitnessForm");
