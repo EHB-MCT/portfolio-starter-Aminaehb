@@ -155,13 +155,42 @@ app.put('/api/students/:id', async (req, res) => {
   const studentId = req.params.id;
   const { first_name, last_name, age, email } = req.body;
 
-  if (!first_name || !last_name || !age || !email) {
+  if (!first_name || !last_name || !age) {
     return res.status(400).send({
       error: "Missing or incomplete request data",
     });
   }
 
   try {
+    // Retrieve the existing student record
+    const existingStudent = await db('students')
+      .where('id', studentId)
+      .first();
+
+    if (!existingStudent) {
+      return res.status(404).send({
+        error: "Student not found",
+      });
+    }
+
+    // Check if the email is provided and different from the current email
+    const emailChanged = email && email !== existingStudent.email;
+
+    if (emailChanged) {
+      // Check if the new email already exists in the database
+      const emailExists = await db('students')
+        .where('email', email)
+        .whereNot('id', studentId)
+        .first();
+
+      if (emailExists) {
+        return res.status(409).send({
+          error: "Email address already exists for another student",
+        });
+      }
+    }
+
+    // Update the student record
     const updatedCount = await db('students')
       .where('id', studentId)
       .update({ first_name, last_name, age, email });
