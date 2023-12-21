@@ -97,108 +97,51 @@ try {
 });
 
 /**
- * GET endpoint for retrieving fitness information.
+ * POST endpoint for creating a new student.
  * 
  * @param - The HTTP request object.
  * @param - The HTTP response object.
- * @returns - The HTTP response containing either fitness information or an error.
+ * @returns - The HTTP response containing either a success message or an error.
  */
-<<<<<<< HEAD
 
 app.post('/api/students', async (req, res) => {
-  console.log('Received POST request:', req.body);
-
-  if (!req.body) {
-    return res.status(400).json({
-      error: "Request body is missing or empty",
-    });
-  }
-
-  const { first_name, last_name, age, email } = req.body;
-
-  try {
-    const [id] = await db('students').insert({
-      first_name,
-      last_name,
-      age,
-      email,
-    }).returning('id');
+    console.log('Received POST request:', req.body);
   
-    const createdStudent = {
-      id,
-      first_name,
-      last_name,
-      age,
-      email,
-    };
-  
-  
-    return res.status(201).json([createdStudent]); // Wrap the object in an array
-  } catch (error) {
-    console.error('Error during student insertion:', error);
-    return res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message || "An internal server error occurred",
-    });
-  }  
-});
-
-=======
-app.get('/api/fitness_info', async (req, res) => {
-    try {
-      // Retrieve all entries from the 'fitness_info' table
-      const fitnessInfo = await db('fitness_info').select('*');
-  
-      // Send the retrieved fitness information as a response
-      res.status(200).send(fitnessInfo);
-    } catch (error) {
-      // Handle errors and send an error response
-      console.error(error);
-      res.status(500).send({
-        error: "Something went wrong",
-        value: error,
+    if (!req.body) {
+      return res.status(400).json({
+        error: "Request body is missing or empty",
       });
     }
-  });
   
-/**
- * GET endpoint for retrieving fitness information by ID.
- * 
- * @param - The HTTP request object.
- * @param - The HTTP response object.
- * @returns - The HTTP response containing either fitness information or an error.
- */
-app.get('/api/fitness_info/:id', async (req, res) => {
-    const fitnessId = req.params.id;
+    const { first_name, last_name, age, email } = req.body;
   
     try {
-      // Retrieve fitness information by ID from the 'fitness_info' table
-      const fitnessInfo = await db('fitness_info').where({ id: fitnessId }).first();
-  
-      // Check if the fitness information exists
-      if (!fitnessInfo) {
-        return res.status(404).send({
-          error: "Fitness information not found",
-        });
-      }
-  
-      // Send the retrieved fitness information as a response
-      res.status(200).send(fitnessInfo);
+      const [id] = await db('students').insert({
+        first_name,
+        last_name,
+        age,
+        email,
+      }).returning('id');
+    
+      const createdStudent = {
+        id,
+        first_name,
+        last_name,
+        age,
+        email,
+      };
+    
+    
+      return res.status(201).json([createdStudent]); // Wrap the object in an array
     } catch (error) {
-      // Handle errors and send an error response
-      console.error(error);
-      res.status(500).send({
-        error: "Something went wrong",
-        value: error,
+      console.error('Error during student insertion:', error);
+      return res.status(500).json({
+        error: "Internal Server Error",
+        message: error.message || "An internal server error occurred",
       });
-    }
+    }  
   });
   
->>>>>>> feat/getRoute
-
-
-
-// ... (previous code)
 
 /**
  * PUT endpoint for updating a specific student by ID.
@@ -309,8 +252,66 @@ app.delete('/api/students/:id', async (req, res) => {
   }
 });
 
-// ... (remaining code)
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * GET endpoint for retrieving fitness information.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing either fitness information or an error.
+ */
+app.get('/api/fitness_info', async (req, res) => {
+    try {
+      // Retrieve all entries from the 'fitness_info' table
+      const fitnessInfo = await db('fitness_info').select('*');
+  
+      // Send the retrieved fitness information as a response
+      res.status(200).send(fitnessInfo);
+    } catch (error) {
+      // Handle errors and send an error response
+      console.error(error);
+      res.status(500).send({
+        error: "Something went wrong",
+        value: error,
+      });
+    }
+  });
+  
+
+/**
+ * GET endpoint for retrieving fitness information by ID.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing either fitness information or an error.
+ */
+app.get('/api/fitness_info/:id', async (req, res) => {
+    const fitnessId = req.params.id;
+  
+    try {
+      // Retrieve fitness information by ID from the 'fitness_info' table
+      const fitnessInfo = await db('fitness_info').where({ id: fitnessId }).first();
+  
+      // Check if the fitness information exists
+      if (!fitnessInfo) {
+        return res.status(404).send({
+          error: "Fitness information not found",
+        });
+      }
+  
+      // Send the retrieved fitness information as a response
+      res.status(200).send(fitnessInfo);
+    } catch (error) {
+      // Handle errors and send an error response
+      console.error(error);
+      res.status(500).send({
+        error: "Something went wrong",
+        value: error,
+      });
+    }
+  });
+  
 
 /**
  * POST endpoint for creating a new entry in the 'fitness_info' table.
