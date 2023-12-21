@@ -41,7 +41,7 @@ app.get("/", (request, response) => {
    response.send({message: "hello world"})
 })
 
-
+// ------------------------------------- Student Info Endpoints -----------------------------------------------
 
 /**
  * GET endpoint for retrieving all students.
@@ -105,32 +105,41 @@ try {
  */
 
 app.post('/api/students', async (req, res) => {
+  console.log('Received POST request:', req.body);
 
   if (!req.body) {
-      return res.status(400).send({
-          error: "Request body is missing or empty",
-      });
+    return res.status(400).json({
+      error: "Request body is missing or empty",
+    });
   }
 
-  const { id, first_name, last_name, age, email } = req.body;
+  const { first_name, last_name, age, email } = req.body;
+
   try {
-      await db('students').insert({
-          id,
-          first_name,
-          last_name,
-          age,
-          email,
-      });
-      res.status(201).send({
-          message: 'Student created successfully',
-      });
+    const [id] = await db('students').insert({
+      first_name,
+      last_name,
+      age,
+      email,
+    }).returning('id');
+  
+    const createdStudent = {
+      id,
+      first_name,
+      last_name,
+      age,
+      email,
+    };
+  
+  
+    return res.status(201).json([createdStudent]); // Wrap the object in an array
   } catch (error) {
-      console.error(error);
-      res.status(500).send({
-          error: "Something went wrong",
-          value: error,
-      });
-  }
+    console.error('Error during student insertion:', error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error.message || "An internal server error occurred",
+    });
+  }  
 });
 
 
@@ -145,13 +154,42 @@ app.put('/api/students/:id', async (req, res) => {
   const studentId = req.params.id;
   const { first_name, last_name, age, email } = req.body;
 
-  if (!first_name || !last_name || !age || !email) {
+  if (!first_name || !last_name || !age) {
     return res.status(400).send({
       error: "Missing or incomplete request data",
     });
   }
 
   try {
+    // Retrieve the existing student record
+    const existingStudent = await db('students')
+      .where('id', studentId)
+      .first();
+
+    if (!existingStudent) {
+      return res.status(404).send({
+        error: "Student not found",
+      });
+    }
+
+    // Check if the email is provided and different from the current email
+    const emailChanged = email && email !== existingStudent.email;
+
+    if (emailChanged) {
+      // Check if the new email already exists in the database
+      const emailExists = await db('students')
+        .where('email', email)
+        .whereNot('id', studentId)
+        .first();
+
+      if (emailExists) {
+        return res.status(409).send({
+          error: "Email address already exists for another student",
+        });
+      }
+    }
+
+    // Update the student record
     const updatedCount = await db('students')
       .where('id', studentId)
       .update({ first_name, last_name, age, email });
@@ -161,6 +199,9 @@ app.put('/api/students/:id', async (req, res) => {
         error: "Student not found",
       });
     }
+
+    // Log the update information
+    console.log(`Student with ID ${studentId} updated:`, req.body);
 
     res.status(200).send({
       message: 'Student updated successfully',
@@ -210,6 +251,8 @@ app.delete('/api/students/:id', async (req, res) => {
     });
   }
 });
+
+// ------------------------------------- Fitness Info Endpoints -----------------------------------------------
 
 /**
  * GET endpoint for retrieving fitness information.
@@ -268,9 +311,6 @@ app.get('/api/fitness_info/:id', async (req, res) => {
     }
   });
   
-
-
-
 
 /**
  * POST endpoint for creating a new entry in the 'fitness_info' table.
@@ -375,7 +415,45 @@ app.put('/api/fitness_info/:id', async (req, res) => {
   }
 });
 
+/**
+ * DELETE endpoint for removing fitness information by ID.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing either a success message or an error.
+ */
+app.delete('/api/fitness_info/:id', async (req, res) => {
+  const fitnessId = req.params.id;
 
+  try {
+    // Check if the fitness information exists
+    const existingFitnessInfo = await db('fitness_info').where({ id: fitnessId }).first();
+
+    if (!existingFitnessInfo) {
+      return res.status(404).send({
+        error: "Fitness information not found",
+      });
+    }
+
+    // Remove the fitness information from the 'fitness_info' table
+    await db('fitness_info').where({ id: fitnessId }).del();
+
+    // Log a message to the terminal
+    console.log('Fitness info deleted successfully. ID:', fitnessId);
+
+    // Send a success response
+    res.status(200).send({
+      message: 'Fitness info deleted successfully',
+    });
+  } catch (error) {
+    // Handle errors and send an error response
+    console.error(error);
+    res.status(500).send({
+      error: "Something went wrong",
+      value: error,
+    });
+  }
+});
 
 app.listen(3000, (error)=> {
     if(!error){
