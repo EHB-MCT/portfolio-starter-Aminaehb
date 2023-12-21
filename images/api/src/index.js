@@ -97,12 +97,13 @@ try {
 });
 
 /**
- * POST endpoint for creating a new student.
+ * GET endpoint for retrieving fitness information.
  * 
  * @param - The HTTP request object.
  * @param - The HTTP response object.
- * @returns - The HTTP response containing either a success message or an error.
+ * @returns - The HTTP response containing either fitness information or an error.
  */
+<<<<<<< HEAD
 
 app.post('/api/students', async (req, res) => {
   console.log('Received POST request:', req.body);
@@ -142,6 +143,58 @@ app.post('/api/students', async (req, res) => {
   }  
 });
 
+=======
+app.get('/api/fitness_info', async (req, res) => {
+    try {
+      // Retrieve all entries from the 'fitness_info' table
+      const fitnessInfo = await db('fitness_info').select('*');
+  
+      // Send the retrieved fitness information as a response
+      res.status(200).send(fitnessInfo);
+    } catch (error) {
+      // Handle errors and send an error response
+      console.error(error);
+      res.status(500).send({
+        error: "Something went wrong",
+        value: error,
+      });
+    }
+  });
+  
+/**
+ * GET endpoint for retrieving fitness information by ID.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing either fitness information or an error.
+ */
+app.get('/api/fitness_info/:id', async (req, res) => {
+    const fitnessId = req.params.id;
+  
+    try {
+      // Retrieve fitness information by ID from the 'fitness_info' table
+      const fitnessInfo = await db('fitness_info').where({ id: fitnessId }).first();
+  
+      // Check if the fitness information exists
+      if (!fitnessInfo) {
+        return res.status(404).send({
+          error: "Fitness information not found",
+        });
+      }
+  
+      // Send the retrieved fitness information as a response
+      res.status(200).send(fitnessInfo);
+    } catch (error) {
+      // Handle errors and send an error response
+      console.error(error);
+      res.status(500).send({
+        error: "Something went wrong",
+        value: error,
+      });
+    }
+  });
+  
+>>>>>>> feat/getRoute
 
 
 
