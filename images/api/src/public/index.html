@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="./styles.css">
+    <link href="https://www.dafont.com/fr/akira-expanded.font" rel="stylesheet">
     <title>Fitness Journey Form</title>
 </head>
 <body>
@@ -13,15 +14,15 @@
     </div>
  
     <div class="container">
-        <h3>FITNESS JOURNEY FORM</h3>
-        <p>Record your fitness journey during college</p>
+        <h3>FITNESS JOURNEY</h3>
+        <p>Record your fitness journey during college in this form</p>
  
         <form id="fitnessForm">
             <label for="fname">First Name</label>
-            <input type="text" id="fname" name="firstname" placeholder="Your name.." required>
+            <input type="text" id="firstname" name="firstname" placeholder="Your name.." required>
  
             <label for="lname">Last Name</label>
-            <input type="text" id="lname" name="lastname" placeholder="Your last name.." required>
+            <input type="text" id="lastname" name="lastname" placeholder="Your last name.." required>
  
             <label for="age">Age</label>
             <input type="number" id="age" name="age" placeholder="Your age.." required>
@@ -33,9 +34,14 @@
         </form>
  
         <div id="thankYouMessage" class="hidden">
-            <p id="thankYouText">Thank you for sharing! You'll soon get an email with what you can do to help have a better routine with school.</p>
-            <div id="allStudentsData" class="submitted-data-container"> </div>
-            <button id="deleteBtn" onclick="deleteRecord()">Delete Record</button>
+            <p id="thankYouText">Are you sure you want to submit this form? You can review and update your data before final submission.</p>
+            <!-- <div id="allStudentsData" class="submitted-data-container"> </div> -->
+
+            <div class="first-submitted-data-container"></div>
+<div class="updated-submitted-data-container"></div>
+
+            <div id="submittedData"></div>
+            <button id="deleteBtn" onclick="deleteRecord()">Delete</button>
             <button type="button" id="updateBtn">Update</button>
         </div>
        
