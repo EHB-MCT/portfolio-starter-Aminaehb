@@ -1,16 +1,33 @@
 const express = require("express");
 const knex = require("knex");
 const dotenv = require('dotenv'); // Add this line
+const path = require('path');
+const cors = require('cors');
+
 
 dotenv.config({ path: '.env' }); // Add this line
 
 const app = express();
-
 const knexfile = require("./db/knexfile");
 const db = knex(knexfile.development);
 
 console.log(knexfile)
 app.use(express.json());
+app.use(cors());
+app.use(express.static(__dirname + '/public'));
+
+
+// Handle requests for the HTML file
+app.get('/threejs', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'threejs.html'));
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Internal Server Error');
+});
+
 
 /**
  * GET endpoint, providing hello world
@@ -86,34 +103,47 @@ try {
  */
 
 app.post('/api/students', async (req, res) => {
+  console.log('Received POST request:', req.body);
 
   if (!req.body) {
-      return res.status(400).send({
-          error: "Request body is missing or empty",
-      });
+    return res.status(400).json({
+      error: "Request body is missing or empty",
+    });
   }
 
-  const { id, first_name, last_name, age, email } = req.body;
+  const { first_name, last_name, age, email } = req.body;
+
   try {
-      await db('students').insert({
-          id,
-          first_name,
-          last_name,
-          age,
-          email,
-      });
-      res.status(201).send({
-          message: 'Student created successfully',
-      });
+    const [id] = await db('students').insert({
+      first_name,
+      last_name,
+      age,
+      email,
+    }).returning('id');
+  
+    const createdStudent = {
+      id,
+      first_name,
+      last_name,
+      age,
+      email,
+    };
+  
+  
+    return res.status(201).json([createdStudent]); // Wrap the object in an array
   } catch (error) {
-      console.error(error);
-      res.status(500).send({
-          error: "Something went wrong",
-          value: error,
-      });
-  }
+    console.error('Error during student insertion:', error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error.message || "An internal server error occurred",
+    });
+  }  
 });
 
+
+
+
+// ... (previous code)
 
 /**
  * PUT endpoint for updating a specific student by ID.
@@ -126,13 +156,42 @@ app.put('/api/students/:id', async (req, res) => {
   const studentId = req.params.id;
   const { first_name, last_name, age, email } = req.body;
 
-  if (!first_name || !last_name || !age || !email) {
+  if (!first_name || !last_name || !age) {
     return res.status(400).send({
       error: "Missing or incomplete request data",
     });
   }
 
   try {
+    // Retrieve the existing student record
+    const existingStudent = await db('students')
+      .where('id', studentId)
+      .first();
+
+    if (!existingStudent) {
+      return res.status(404).send({
+        error: "Student not found",
+      });
+    }
+
+    // Check if the email is provided and different from the current email
+    const emailChanged = email && email !== existingStudent.email;
+
+    if (emailChanged) {
+      // Check if the new email already exists in the database
+      const emailExists = await db('students')
+        .where('email', email)
+        .whereNot('id', studentId)
+        .first();
+
+      if (emailExists) {
+        return res.status(409).send({
+          error: "Email address already exists for another student",
+        });
+      }
+    }
+
+    // Update the student record
     const updatedCount = await db('students')
       .where('id', studentId)
       .update({ first_name, last_name, age, email });
@@ -142,6 +201,9 @@ app.put('/api/students/:id', async (req, res) => {
         error: "Student not found",
       });
     }
+
+    // Log the update information
+    console.log(`Student with ID ${studentId} updated:`, req.body);
 
     res.status(200).send({
       message: 'Student updated successfully',
@@ -176,9 +238,13 @@ app.delete('/api/students/:id', async (req, res) => {
       });
     }
 
+    // Log the delete information
+    console.log(`Student with ID ${studentId} deleted`);
+
     res.status(200).send({
       message: 'Student deleted successfully',
     });
+    
   } catch (error) {
     console.error(error);
     res.status(500).send({
@@ -187,6 +253,8 @@ app.delete('/api/students/:id', async (req, res) => {
     });
   }
 });
+
+// ... (remaining code)
 
 
 app.listen(3000, (error)=> {

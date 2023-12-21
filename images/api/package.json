@@ -25,6 +25,10 @@
     "knex": "^3.0.1",
     "nodemon": "^3.0.1",
     "pg": "^8.11.3",
-    "postgres": "^3.4.3"
+    "postgres": "^3.4.3",
+    "three": "^0.159.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.10"
   }
 }
