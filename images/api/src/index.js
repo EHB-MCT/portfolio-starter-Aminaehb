@@ -78,41 +78,29 @@ try {
 });
 
 /**
- * POST endpoint for creating a new student.
+ * GET endpoint for retrieving fitness information.
  * 
  * @param - The HTTP request object.
  * @param - The HTTP response object.
- * @returns - The HTTP response containing either a success message or an error.
+ * @returns - The HTTP response containing either fitness information or an error.
  */
-
-app.post('/api/students', async (req, res) => {
-
-  if (!req.body) {
-      return res.status(400).send({
-          error: "Request body is missing or empty",
-      });
-  }
-
-  const { id, first_name, last_name, age, email } = req.body;
-  try {
-      await db('students').insert({
-          id,
-          first_name,
-          last_name,
-          age,
-          email,
-      });
-      res.status(201).send({
-          message: 'Student created successfully',
-      });
-  } catch (error) {
+app.get('/api/fitness_info', async (req, res) => {
+    try {
+      // Retrieve all entries from the 'fitness_info' table
+      const fitnessInfo = await db('fitness_info').select('*');
+  
+      // Send the retrieved fitness information as a response
+      res.status(200).send(fitnessInfo);
+    } catch (error) {
+      // Handle errors and send an error response
       console.error(error);
       res.status(500).send({
-          error: "Something went wrong",
-          value: error,
+        error: "Something went wrong",
+        value: error,
       });
-  }
-});
+    }
+  });
+  
 
 
 app.listen(3000, (error)=> {
