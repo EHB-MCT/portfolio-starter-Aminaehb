@@ -41,6 +41,8 @@ app.get("/", (request, response) => {
    response.send({message: "hello world"})
 })
 
+// ------------------------------------- Student Info Endpoints -----------------------------------------------
+
 /**
  * GET endpoint for retrieving all students.
  * 
@@ -140,10 +142,6 @@ app.post('/api/students', async (req, res) => {
   }  
 });
 
-
-
-
-// ... (previous code)
 
 /**
  * PUT endpoint for updating a specific student by ID.
@@ -254,8 +252,208 @@ app.delete('/api/students/:id', async (req, res) => {
   }
 });
 
-// ... (remaining code)
+// ------------------------------------- Fitness Info Endpoints -----------------------------------------------
 
+/**
+ * GET endpoint for retrieving fitness information.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing either fitness information or an error.
+ */
+app.get('/api/fitness_info', async (req, res) => {
+    try {
+      // Retrieve all entries from the 'fitness_info' table
+      const fitnessInfo = await db('fitness_info').select('*');
+  
+      // Send the retrieved fitness information as a response
+      res.status(200).send(fitnessInfo);
+    } catch (error) {
+      // Handle errors and send an error response
+      console.error(error);
+      res.status(500).send({
+        error: "Something went wrong",
+        value: error,
+      });
+    }
+  });
+  
+/**
+ * GET endpoint for retrieving fitness information by ID.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing either fitness information or an error.
+ */
+app.get('/api/fitness_info/:id', async (req, res) => {
+    const fitnessId = req.params.id;
+  
+    try {
+      // Retrieve fitness information by ID from the 'fitness_info' table
+      const fitnessInfo = await db('fitness_info').where({ id: fitnessId }).first();
+  
+      // Check if the fitness information exists
+      if (!fitnessInfo) {
+        return res.status(404).send({
+          error: "Fitness information not found",
+        });
+      }
+  
+      // Send the retrieved fitness information as a response
+      res.status(200).send(fitnessInfo);
+    } catch (error) {
+      // Handle errors and send an error response
+      console.error(error);
+      res.status(500).send({
+        error: "Something went wrong",
+        value: error,
+      });
+    }
+  });
+  
+
+/**
+ * POST endpoint for creating a new entry in the 'fitness_info' table.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing either a success message or an error.
+ */
+app.post('/api/fitness_info', async (req, res) => {
+    if (!req.body) {
+      return res.status(400).send({
+        error: "Request body is missing or empty",
+      });
+    }
+  
+    // Destructure the required parameters from the request body
+    const { id, student_id, physical_activity, exercise_duration, anxiety_control, sleep_duration, quality_of_sleep } = req.body;
+  
+    try {
+      // Insert a new entry into the 'fitness_info' table
+      await db('fitness_info').insert({
+        id,  // Assuming 'id' is provided in the request body
+        student_id,
+        physical_activity,
+        exercise_duration,
+        anxiety_control,
+        sleep_duration,
+        quality_of_sleep,
+      });
+  
+      // Log a message to the terminal
+      console.log('Fitness info submitted successfully:', req.body);
+  
+      // Send a success response
+      res.status(201).send({
+        message: 'Fitness info created successfully',
+      });
+    } catch (error) {
+      // Handle errors and send an error response
+      console.error(error);
+      res.status(500).send({
+        error: "Something went wrong",
+        value: error,
+      });
+    }
+  });
+
+/**
+ * PUT endpoint for updating fitness information by ID.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing either a success message or an error.
+ */
+app.put('/api/fitness_info/:id', async (req, res) => {
+  const fitnessId = req.params.id;
+
+  // Ensure that the request body is not empty
+  if (!req.body) {
+    return res.status(400).send({
+      error: "Request body is missing or empty",
+    });
+  }
+
+  // Destructure the parameters from the request body
+  const { student_id, physical_activity, exercise_duration, anxiety_control, sleep_duration, quality_of_sleep } = req.body;
+
+  try {
+    // Check if the fitness information exists
+    const existingFitnessInfo = await db('fitness_info').where({ id: fitnessId }).first();
+
+    if (!existingFitnessInfo) {
+      return res.status(404).send({
+        error: "Fitness information not found",
+      });
+    }
+
+    // Update the fitness information in the 'fitness_info' table
+    await db('fitness_info').where({ id: fitnessId }).update({
+      student_id,
+      physical_activity,
+      exercise_duration,
+      anxiety_control,
+      sleep_duration,
+      quality_of_sleep,
+    });
+
+    // Log a message to the terminal
+    console.log('Fitness info updated successfully:', req.body);
+
+    // Send a success response
+    res.status(200).send({
+      message: 'Fitness info updated successfully',
+    });
+  } catch (error) {
+    // Handle errors and send an error response
+    console.error(error);
+    res.status(500).send({
+      error: "Something went wrong",
+      value: error,
+    });
+  }
+});
+
+/**
+ * DELETE endpoint for removing fitness information by ID.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing either a success message or an error.
+ */
+app.delete('/api/fitness_info/:id', async (req, res) => {
+  const fitnessId = req.params.id;
+
+  try {
+    // Check if the fitness information exists
+    const existingFitnessInfo = await db('fitness_info').where({ id: fitnessId }).first();
+
+    if (!existingFitnessInfo) {
+      return res.status(404).send({
+        error: "Fitness information not found",
+      });
+    }
+
+    // Remove the fitness information from the 'fitness_info' table
+    await db('fitness_info').where({ id: fitnessId }).del();
+
+    // Log a message to the terminal
+    console.log('Fitness info deleted successfully. ID:', fitnessId);
+
+    // Send a success response
+    res.status(200).send({
+      message: 'Fitness info deleted successfully',
+    });
+  } catch (error) {
+    // Handle errors and send an error response
+    console.error(error);
+    res.status(500).send({
+      error: "Something went wrong",
+      value: error,
+    });
+  }
+});
 
 app.listen(3000, (error)=> {
     if(!error){
@@ -265,4 +463,6 @@ app.listen(3000, (error)=> {
         console.error(error)
     }
 })
+
+
 
