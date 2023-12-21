@@ -105,45 +105,33 @@ try {
  */
 
 app.post('/api/students', async (req, res) => {
-  console.log('Received POST request:', req.body);
 
   if (!req.body) {
-    return res.status(400).json({
-      error: "Request body is missing or empty",
-    });
+      return res.status(400).send({
+          error: "Request body is missing or empty",
+      });
   }
 
-  const { first_name, last_name, age, email } = req.body;
-
+  const { id, first_name, last_name, age, email } = req.body;
   try {
-    const [id] = await db('students').insert({
-      first_name,
-      last_name,
-      age,
-      email,
-    }).returning('id');
-  
-    const createdStudent = {
-      id,
-      first_name,
-      last_name,
-      age,
-      email,
-    };
-  
-  
-    return res.status(201).json([createdStudent]); // Wrap the object in an array
+      await db('students').insert({
+          id,
+          first_name,
+          last_name,
+          age,
+          email,
+      });
+      res.status(201).send({
+          message: 'Student created successfully',
+      });
   } catch (error) {
-    console.error('Error during student insertion:', error);
-    return res.status(500).json({
-      error: "Internal Server Error",
-      message: error.message || "An internal server error occurred",
-    });
-  }  
+      console.error(error);
+      res.status(500).send({
+          error: "Something went wrong",
+          value: error,
+      });
+  }
 });
-
-
-
 
 
 /**
@@ -157,42 +145,13 @@ app.put('/api/students/:id', async (req, res) => {
   const studentId = req.params.id;
   const { first_name, last_name, age, email } = req.body;
 
-  if (!first_name || !last_name || !age) {
+  if (!first_name || !last_name || !age || !email) {
     return res.status(400).send({
       error: "Missing or incomplete request data",
     });
   }
 
   try {
-    // Retrieve the existing student record
-    const existingStudent = await db('students')
-      .where('id', studentId)
-      .first();
-
-    if (!existingStudent) {
-      return res.status(404).send({
-        error: "Student not found",
-      });
-    }
-
-    // Check if the email is provided and different from the current email
-    const emailChanged = email && email !== existingStudent.email;
-
-    if (emailChanged) {
-      // Check if the new email already exists in the database
-      const emailExists = await db('students')
-        .where('email', email)
-        .whereNot('id', studentId)
-        .first();
-
-      if (emailExists) {
-        return res.status(409).send({
-          error: "Email address already exists for another student",
-        });
-      }
-    }
-
-    // Update the student record
     const updatedCount = await db('students')
       .where('id', studentId)
       .update({ first_name, last_name, age, email });
@@ -202,9 +161,6 @@ app.put('/api/students/:id', async (req, res) => {
         error: "Student not found",
       });
     }
-
-    // Log the update information
-    console.log(`Student with ID ${studentId} updated:`, req.body);
 
     res.status(200).send({
       message: 'Student updated successfully',
@@ -420,7 +376,7 @@ app.put('/api/fitness_info/:id', async (req, res) => {
 });
 
 
-  
+
 app.listen(3000, (error)=> {
     if(!error){
         console.log("running on port " + 3000);
