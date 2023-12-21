@@ -24,51 +24,42 @@ app.get("/", (request, response) => {
    response.send({message: "hello world"})
 })
 
+
+
 /**
- * POST endpoint for creating a new student with fitness information.
+ * POST endpoint for creating a new student.
  * 
  * @param - The HTTP request object.
  * @param - The HTTP response object.
  * @returns - The HTTP response containing either a success message or an error.
  */
+
 app.post('/api/students', async (req, res) => {
+
   if (!req.body) {
-    return res.status(400).send({
-      error: "Request body is missing or empty",
-    });
+      return res.status(400).send({
+          error: "Request body is missing or empty",
+      });
   }
 
-  const { id, first_name, last_name, age, email, fitnessInfo } = req.body;
-
+  const { id, first_name, last_name, age, email } = req.body;
   try {
-    const studentId = await db('students').insert({
-      id,
-      first_name,
-      last_name,
-      age,
-      email,
-    }).returning('id');
-
-    await db('fitness_info').insert({
-      student_id: studentId[0],
-      physical_activity: fitnessInfo.physical_activity,
-      exercise_duration: fitnessInfo.exercise_duration,
-      anxiety_control: fitnessInfo.anxiety_control,
-      sleep_duration: fitnessInfo.sleep_duration,
-      quality_of_sleep: fitnessInfo.quality_of_sleep,
-    });
-
-    console.log('Fitness information added successfully:', fitnessInfo);
-
-    res.status(201).send({
-      message: 'Student and fitness information created successfully',
-    });
+      await db('students').insert({
+          id,
+          first_name,
+          last_name,
+          age,
+          email,
+      });
+      res.status(201).send({
+          message: 'Student created successfully',
+      });
   } catch (error) {
-    console.error(error);
-    res.status(500).send({
-      error: "Something went wrong",
-      value: error,
-    });
+      console.error(error);
+      res.status(500).send({
+          error: "Something went wrong",
+          value: error,
+      });
   }
 });
 
@@ -118,8 +109,8 @@ app.post('/api/fitness_info', async (req, res) => {
       });
     }
   });
-  
 
+  
 app.listen(3000, (error)=> {
     if(!error){
         console.log("running on port " + 3000);
