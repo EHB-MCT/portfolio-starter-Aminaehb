@@ -41,6 +41,8 @@ app.get("/", (request, response) => {
    response.send({message: "hello world"})
 })
 
+
+
 /**
  * GET endpoint for retrieving all students.
  * 
@@ -257,6 +259,53 @@ app.delete('/api/students/:id', async (req, res) => {
 // ... (remaining code)
 
 
+/**
+ * POST endpoint for creating a new entry in the 'fitness_info' table.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing either a success message or an error.
+ */
+app.post('/api/fitness_info', async (req, res) => {
+    if (!req.body) {
+      return res.status(400).send({
+        error: "Request body is missing or empty",
+      });
+    }
+  
+    // Destructure the required parameters from the request body
+    const { id, student_id, physical_activity, exercise_duration, anxiety_control, sleep_duration, quality_of_sleep } = req.body;
+  
+    try {
+      // Insert a new entry into the 'fitness_info' table
+      await db('fitness_info').insert({
+        id,  // Assuming 'id' is provided in the request body
+        student_id,
+        physical_activity,
+        exercise_duration,
+        anxiety_control,
+        sleep_duration,
+        quality_of_sleep,
+      });
+  
+      // Log a message to the terminal
+      console.log('Fitness info submitted successfully:', req.body);
+  
+      // Send a success response
+      res.status(201).send({
+        message: 'Fitness info created successfully',
+      });
+    } catch (error) {
+      // Handle errors and send an error response
+      console.error(error);
+      res.status(500).send({
+        error: "Something went wrong",
+        value: error,
+      });
+    }
+  });
+
+  
 app.listen(3000, (error)=> {
     if(!error){
         console.log("running on port " + 3000);
