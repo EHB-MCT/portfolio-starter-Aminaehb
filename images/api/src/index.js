@@ -320,43 +320,47 @@ app.get('/api/fitness_info/:id', async (req, res) => {
  * @returns - The HTTP response containing either a success message or an error.
  */
 app.post('/api/fitness_info', async (req, res) => {
-    if (!req.body) {
-      return res.status(400).send({
-        error: "Request body is missing or empty",
+  if (!req.body) {
+      return res.status(400).json({
+          error: "Request body is missing or empty",
       });
-    }
-  
-    // Destructure the required parameters from the request body
-    const { id, student_id, physical_activity, exercise_duration, anxiety_control, sleep_duration, quality_of_sleep } = req.body;
-  
-    try {
+  }
+
+  // Destructure the required and optional parameters from the request body
+  const { id, student_id, physical_activity, exercise_duration, anxiety_control, sleep_duration, quality_of_sleep } = req.body;
+
+  // Check if sleep_duration is provided, if not, set a default value or handle it accordingly
+  const actualSleepDuration = sleep_duration || 0; // Set a default value or handle it based on your business logic
+
+  try {
       // Insert a new entry into the 'fitness_info' table
       await db('fitness_info').insert({
-        id,  // Assuming 'id' is provided in the request body
-        student_id,
-        physical_activity,
-        exercise_duration,
-        anxiety_control,
-        sleep_duration,
-        quality_of_sleep,
+          id,  // Assuming 'id' is provided in the request body
+          student_id,
+          physical_activity,
+          exercise_duration,
+          anxiety_control,
+          sleep_duration: actualSleepDuration,  // Use the actual sleep duration
+          quality_of_sleep,
       });
-  
+
       // Log a message to the terminal
       console.log('Fitness info submitted successfully:', req.body);
-  
+
       // Send a success response
-      res.status(201).send({
-        message: 'Fitness info created successfully',
+      res.status(201).json({
+          message: 'Fitness info created successfully',
       });
-    } catch (error) {
+  } catch (error) {
       // Handle errors and send an error response
       console.error(error);
-      res.status(500).send({
-        error: "Something went wrong",
-        value: error,
+      res.status(500).json({
+          error: "Something went wrong",
+          value: error,
       });
-    }
-  });
+  }
+});
+
 
 /**
  * PUT endpoint for updating fitness information by ID.

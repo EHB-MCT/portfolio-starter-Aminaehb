@@ -119,3 +119,9 @@ input[type="button"] {
     margin-top: 10px;
     width: 48%;
 }
+/* Add these styles to your existing styles.css file */
+
+.button-group button.active {
+    background-color: #555555;
+}
+

@@ -17,7 +17,8 @@
         <h3>FITNESS JOURNEY</h3>
         <p>Record your fitness journey during college in this form</p>
  
-        <form id="fitnessForm">
+        <!-- First Form (Student Info) -->
+        <form id="studentInfoForm">
             <label for="fname">First Name</label>
             <input type="text" id="firstname" name="firstname" placeholder="Your name.." required>
  
@@ -29,24 +30,60 @@
  
             <label for="email">Email</label>
             <input type="email" id="email" name="email" placeholder="Your email.." required>
- 
-            <button type="button" id="submitBtn">Submit</button>
+
+            <button type="button" id="submitStudentInfoBtn">Submit</button>
         </form>
- 
-        <div id="thankYouMessage" class="hidden">
-            <p id="thankYouText">Are you sure you want to submit this form? You can review and update your data before final submission.</p>
-            <!-- <div id="allStudentsData" class="submitted-data-container"> </div> -->
 
-            <div class="first-submitted-data-container"></div>
-<div class="updated-submitted-data-container"></div>
+        <!-- Second Form (Fitness Info) - Initially hidden -->
+        <form id="fitnessInfoForm" class="hidden">
+            <!-- Include fields related to fitness info -->
+            <div class="button-group" id="physical-activity-group">
+                <label for="physical-activity">Physical Activity:</label>
+                <button type="button" onclick="toggleButton(this)">Walking</button>
+                <button type="button" onclick="toggleButton(this)">Jogging</button>
+                <button type="button" onclick="toggleButton(this)">Gym</button>
+                <button type="button" onclick="toggleButton(this)">Sports</button>
+            </div>
 
-            <div id="submittedData"></div>
+            <div class="button-group">
+                <label for="exercise-duration">Duration of Exercise (hours):</label>
+                <input type="number" id="exercise-duration" name="exercise_duration" placeholder="e.g., 2">
+            </div>
+
+            <div class="color-group">
+                <label for="anxiety-control">Anxiety Control:</label>
+                <input type="range" id="anxiety-control" name="anxiety_control" min="1" max="4" step="1">
+            </div>
+
+            <!-- Sleep Section -->
+            <label for="sleep-duration">Sleep Duration (hours per night):</label>
+            <input type="number" id="sleep-duration" name="sleep_duration" placeholder="e.g., 7">
+
+            <div class="button-group" id="quality-of-sleep-group">
+                <label for="quality-of-sleep">Quality of Sleep:</label>
+                <button type="button" onclick="toggleButton(this)">Restful</button>
+                <button type="button" onclick="toggleButton(this)">Disturbed</button>
+                <!-- Add more buttons as needed -->
+            </div>
+
+            <button type="button" id="submitFitnessInfoBtn">Submit Fitness Info</button>
+        </form>
+
+        <!-- Actions after submission -->
+        <div id="actions" class="hidden">
             <button id="deleteBtn" onclick="deleteRecord()">Delete</button>
             <button type="button" id="updateBtn">Update</button>
         </div>
-       
-        
-        
+ 
+        <div id="thankYouMessage" class="hidden">
+            <p id="thankYouText">Are you sure you want to submit this form? You can review and update your data before final submission.</p>
+            
+            <!-- Display submitted and updated data -->
+            <div class="first-submitted-data-container"></div>
+            <div class="updated-submitted-data-container"></div>
+
+            <div id="submittedData"></div>
+        </div>
     </div>
  
     <script src="./index.js"></script>

@@ -5,75 +5,17 @@ let isFormSubmitted = false; // Add a flag to check if the form submission is co
 let currentStudentId;
 
 // Event listeners for buttons
-document.getElementById("submitBtn").addEventListener("click", submitForm);
+document.getElementById("submitStudentInfoBtn").addEventListener("click", submitStudentInfo);
+document.getElementById("submitFitnessInfoBtn").addEventListener("click", submitFitnessInfo);
 document.getElementById("deleteBtn").addEventListener("click", deleteRecord);
 document.getElementById("updateBtn").addEventListener("click", updateRecord);
 
-
-// Function to submit the form
-async function submitForm() {
-    const formData = new FormData(document.getElementById("fitnessForm"));
-    let response = null;
-    let existingStudentId; // Declare existingStudentId here
-
+// Function to submit student info
+async function submitStudentInfo() {
     try {
-        // Check if the student already exists
-        const existingStudent = allSubmittedData.find(student => student.email === formData.get("email"));
+        const formData = new FormData(document.getElementById("studentInfoForm"));
 
-        if (existingStudent) {
-            existingStudentId = existingStudent.id;
-            console.log('Existing Student ID:', existingStudentId);
-
-            if (!currentStudentId) {
-                currentStudentId = existingStudentId;
-            }
-
-            // Make a PUT request to update the existing student record
-            response = await fetch(`/api/students/${existingStudentId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    "first_name": formData.get("firstname"),
-                    "last_name": formData.get("lastname"),
-                    "age": formData.get("age"),
-                    "email": formData.get("email"),
-                }),
-            });
-
-            if (response.ok) {
-                try {
-                    // Retrieve the updated data from the response
-                    const updatedData = await response.json();
-
-                    // Update the display with the updated data
-                    submittedData = allSubmittedData.filter(student => student.id === currentStudentId);
-                    allSubmittedData.push(...submittedData);
-                    displayAllSubmittedData();
-
-                    // Reset the form submission flag
-                    isFormSubmitted = false;
-
-                    // Hide the "Delete" and "Update" buttons
-                    document.getElementById("deleteBtn").classList.add("hidden");
-                    document.getElementById("updateBtn").classList.add("hidden");
-
-                    // Update the thank you message
-                    document.getElementById("thankYouText").textContent = "Thank you for sharing your final answers! We'll soon send an email with tips on staying healthy during college!";
-
-                    document.getElementById("thankYouMessage").classList.remove("hidden");
-                    document.getElementById("fitnessForm").classList.add("hidden");
-                } catch (error) {
-                    console.error('Error parsing updated data:', error);
-                }
-            } else {
-                console.error('Error during record update:', response.statusText);
-            }
-
-            return;
-        }
-
-        // If the student is new, make a POST request to create a new record
-        response = await fetch('/api/students', {
+        const response = await fetch('/api/students', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -85,35 +27,72 @@ async function submitForm() {
         });
 
         if (response.ok) {
-            // Handle a successful response (new record created)
-            submittedData = await response.json();
+            const newStudentDataArray = await response.json();
 
-            if (Array.isArray(submittedData) && submittedData.length > 0) {
-                const firstElement = submittedData[0];
-                currentStudentId = firstElement.id.id;  // Correctly access the nested ID
-                console.log('Structure of submittedData:', firstElement);
+            // Check if the array contains data and if the first element has the expected structure
+            if (Array.isArray(newStudentDataArray) && newStudentDataArray.length > 0 && newStudentDataArray[0].id && newStudentDataArray[0].id.id) {
+                const newStudentData = newStudentDataArray[0];
+                allSubmittedData.push(newStudentData);
+
+                currentStudentId = newStudentData.id.id;
+
+                // Display the second form (Fitness Info) and hide the first form
+                document.getElementById("studentInfoForm").classList.add("hidden");
+                document.getElementById("fitnessInfoForm").classList.remove("hidden");
             } else {
-                console.error('Invalid format of submittedData:', submittedData);
+                console.error('Invalid or missing data in student info response:', newStudentDataArray);
             }
-
-            allSubmittedData.push(...submittedData);
-            displayAllSubmittedData();
-
-            // Set the form submission flag to true only after a successful response
-            isFormSubmitted = true;
-            console.log('Form submitted successfully. isFormSubmitted:', isFormSubmitted);
-
-            // Show the thank you message and hide the form
-            document.getElementById("thankYouMessage").classList.remove("hidden");
-            document.getElementById("fitnessForm").classList.add("hidden");
         } else {
-            console.error('Form submission failed.');
+            console.error('Error during student record creation:', response.statusText);
         }
     } catch (error) {
-        console.error('Error during form submission:', error);
+        console.error('Error during student info submission:', error);
     }
 }
 
+
+// Function to submit fitness info
+async function submitFitnessInfo() {
+    try {
+        if (!currentStudentId) {
+            console.error('Invalid or missing student ID for fitness info submission');
+            return;
+        }
+
+        const fitnessFormData = new FormData(document.getElementById("fitnessInfoForm"));
+
+        const response = await fetch(`/api/fitness_info`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                "student_id": currentStudentId,
+                "physical_activity": getSelectedButtons("physical-activity-group"),
+                "exercise_duration": fitnessFormData.get("exercise_duration"),
+                "anxiety_control": fitnessFormData.get("anxiety_control"),
+                "sleep_duration": fitnessFormData.get("sleep_duration"),
+                "quality_of_sleep": getSelectedButtons("quality-of-sleep-group"),
+            }),
+        });
+
+        if (response.ok) {
+            // Handle successful fitness info submission
+            const fitnessInfoData = await response.json();
+
+            // Log or handle the fitness info data as needed
+            console.log('Fitness info submitted successfully:', fitnessInfoData);
+
+            // Set the flag indicating form submission is complete
+            isFormSubmitted = true;
+
+            // Display all submitted data
+            displayAllSubmittedData();
+        } else {
+            console.error('Error during fitness info submission:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error during fitness info submission:', error);
+    }
+}
 
 // Function to display all submitted data
 function displayAllSubmittedData() {
@@ -132,7 +111,7 @@ function displayAllSubmittedData() {
     if (allSubmittedData.length > 0) {
         const firstSubmittedData = allSubmittedData[0];
         firstDataContainer.innerHTML = `
-            <div class="submitted-student" data-index="${firstSubmittedData.id}">
+            <div class="submitted-student" data-index="${firstSubmittedData.id.id}">
                 <strong>First Name:</strong> ${firstSubmittedData.first_name}<br>
                 <strong>Last Name:</strong> ${firstSubmittedData.last_name}<br>
                 <strong>Age:</strong> ${firstSubmittedData.age}<br>
@@ -155,7 +134,7 @@ function displayAllSubmittedData() {
     if (submittedData && submittedData.length > 0 && !isDataEqual(submittedData[0], allSubmittedData[0])) {
         updatedDataContainer.innerHTML = submittedData.map(student => {
             return `
-                <div class="submitted-student" data-index="${student.id}">
+                <div class="submitted-student" data-index="${student.id.id}">
                     <strong>First Name:</strong> ${student.first_name}<br>
                     <strong>Last Name:</strong> ${student.last_name}<br>
                     <strong>Age:</strong> ${student.age}<br>
@@ -220,7 +199,6 @@ async function deleteRecord() {
         console.error('Error during record deletion:', error);
     }
 }
-
 
 // Function to update a record
 async function updateRecord() {
@@ -290,7 +268,6 @@ async function updateRecord() {
     }
 }
 
-
 // Function to change answers
 function changeAnswers() {
     console.log('Submitted Data:', submittedData);
@@ -322,7 +299,6 @@ function changeAnswers() {
     document.getElementById("thankYouMessage").classList.add("hidden");
     document.getElementById("fitnessForm").classList.remove("hidden");
 }
-
 
 // Modify the event listener for the "Update" button
 document.getElementById("updateBtn").addEventListener("click", async () => {
@@ -369,3 +345,17 @@ function clearSubmittedData() {
     // Clear the content of the submitted data display
     document.getElementById("submittedData").innerHTML = "";
 }
+
+// Function to toggle a button
+function toggleButton(button) {
+    if (!isFormSubmitted) {
+        button.classList.toggle("clicked");
+    }
+}
+
+// Event listener for buttons with the class "button-group"
+document.querySelectorAll('.button-group button').forEach(button => {
+    button.addEventListener('click', function () {
+        toggleButton(this);
+    });
+});
