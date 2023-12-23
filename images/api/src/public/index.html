@@ -39,10 +39,10 @@
             <!-- Include fields related to fitness info -->
             <div class="button-group" id="physical-activity-group">
                 <label for="physical-activity">Physical Activity:</label>
-                <button type="button" onclick="toggleButton(this)">Walking</button>
-                <button type="button" onclick="toggleButton(this)">Jogging</button>
-                <button type="button" onclick="toggleButton(this)">Gym</button>
-                <button type="button" onclick="toggleButton(this)">Sports</button>
+                <button type="button">Walking</button>
+                <button type="button">Jogging</button>
+                <button type="button">Gym</button>
+                <button type="button">Sports</button>
             </div>
 
             <div class="button-group">
@@ -61,31 +61,35 @@
 
             <div class="button-group" id="quality-of-sleep-group">
                 <label for="quality-of-sleep">Quality of Sleep:</label>
-                <button type="button" onclick="toggleButton(this)">Restful</button>
-                <button type="button" onclick="toggleButton(this)">Disturbed</button>
+                <button type="button" id="restfulSleepBtn">Restful</button>
+                <button type="button" id="disturbedSleepBtn">Disturbed</button>
                 <!-- Add more buttons as needed -->
             </div>
 
             <button type="button" id="submitFitnessInfoBtn">Submit Fitness Info</button>
         </form>
 
-        <!-- Actions after submission -->
-        <div id="actions" class="hidden">
-            <button id="deleteBtn" onclick="deleteRecord()">Delete</button>
-            <button type="button" id="updateBtn">Update</button>
-        </div>
+       <!-- Actions after submission -->
+       <div id="actions" class="hidden">
+        <button id="deleteBtn" onclick="deleteRecord()">Delete</button>
+        <button type="button" id="updateBtn" onclick="updateRecord()">Update</button>
+        <button type="button" id="submitFinallyBtn" onclick="submitFinally()">Submit Finally</button>
+    </div>
+
  
         <div id="thankYouMessage" class="hidden">
             <p id="thankYouText">Are you sure you want to submit this form? You can review and update your data before final submission.</p>
-            
             <!-- Display submitted and updated data -->
             <div class="first-submitted-data-container"></div>
             <div class="updated-submitted-data-container"></div>
-
+            <div class="submitted-data-container"></div>
             <div id="submittedData"></div>
         </div>
+        <a href="#" id="goBackLink" class="hidden" onclick="goBackToForm()">Click here to go back to the form</a>
+
     </div>
  
     <script src="./index.js"></script>
 </body>
 </html>
+
