@@ -1,14 +1,16 @@
 // Initialize an array to store submitted data
 let allSubmittedData = [];
-let submittedData; // Declare submittedData in the global scope
+let submittedData = [null, null]; // Initialize submittedData with two null elements
 let isFormSubmitted = false; // Add a flag to check if the form submission is complete
 let currentStudentId;
+
 
 // Event listeners for buttons
 document.getElementById("submitStudentInfoBtn").addEventListener("click", submitStudentInfo);
 document.getElementById("submitFitnessInfoBtn").addEventListener("click", submitFitnessInfo);
 document.getElementById("deleteBtn").addEventListener("click", deleteRecord);
 document.getElementById("updateBtn").addEventListener("click", updateRecord);
+document.getElementById("submitFinallyBtn").addEventListener("click", submitFinally);
 
 // Function to submit student info
 async function submitStudentInfo() {
@@ -40,11 +42,9 @@ async function submitStudentInfo() {
                 currentStudentId = newStudentData.id.id;
 
                 // Display the second form (Fitness Info) and hide the first form
-                document.getElementById("studentInfoForm").classList.add("hidden");
-                document.getElementById("fitnessInfoForm").classList.remove("hidden");
-
-                // Show the "Delete," "Update," and "Submit Finally" buttons
-                document.getElementById("actions").classList.remove("hidden");
+                console.log('Submitting student info - hiding student form and showing fitness form');
+                hideElement("studentInfoForm");
+                showElement("fitnessInfoForm");
             } else {
                 console.error('Invalid or missing data in student info response:', newStudentDataArray);
             }
@@ -72,6 +72,10 @@ async function submitFitnessInfo() {
         const physicalActivityAnswers = getSelectedButtons("physical-activity-group");
         const qualityOfSleepAnswers = getSelectedButtons("quality-of-sleep-group");
 
+        // Ensure that physicalActivityAnswers is not null
+        const physicalActivity = physicalActivityAnswers.length > 0 ? physicalActivityAnswers : null;
+
+        
         // Make a POST request to create a new fitness info record
         const response = await fetch(`/api/fitness_info`, {
             method: 'POST',
@@ -88,18 +92,34 @@ async function submitFitnessInfo() {
 
         // Check if the response is successful
         if (response.ok) {
-            // Handle successful fitness info submission
-            const fitnessInfoData = await response.json();
+            const responseData = await response.json();
+            console.log('Server Response Data:', responseData); // Log the response data
 
-            // Log the fitness info data to the console
-            console.log('Fitness Info Data:', fitnessInfoData);
+            // Check if the response indicates success
+            if (responseData.message === 'Fitness info created successfully') {
+                console.log('Fitness info created successfully');
 
-            // Make a GET request to retrieve combined student and fitness info
-            const studentResponse = await fetch(`/api/students/${currentStudentId}`);
-            const studentData = await studentResponse.json();
+                // Set the form submission flag to true
+                isFormSubmitted = true;
 
-            // Display the combined data
-            displayCombinedData([studentData, fitnessInfoData]);
+                // Set the submittedData variable with the server response data
+                submittedData = [null, responseData.data]; // Update the entire array
+
+                // Log the submittedData to check its contents
+                console.log('submittedData:', submittedData);
+
+                await waitForFormSubmissionCompletion();
+
+
+                // Hide the fitness form and show the confirmation container along with the buttons
+                hideElement("fitnessInfoForm");
+                showElement("confirmationContainer");
+                showElement("deleteBtn");
+                showElement("updateBtn");
+                showElement("submitFinallyBtn");
+            } else {
+                console.error('Error during fitness info submission:', responseData.message);
+            }
         } else {
             console.error('Error during fitness info submission:', response.statusText);
         }
@@ -108,111 +128,160 @@ async function submitFitnessInfo() {
     }
 }
 
+// Function to wait for form submission completion
+async function waitForFormSubmissionCompletion() {
+    while (!isFormSubmitted) {
+        await new Promise(resolve => requestAnimationFrame(resolve));
+    }
+}
 
-// Function to make a GET request for combined student and fitness info
-async function getCombinedData(studentId) {
+
+// Function to submit the form finally
+function submitFinally() {
     try {
-        // Make a GET request to retrieve student information
-        const studentResponse = await fetch(`/api/students/${studentId}`);
-        
-        if (studentResponse.ok) {
-            const studentData = await studentResponse.json();
+        // Hide the buttons
+        hideElement("deleteBtn");
+        hideElement("updateBtn");
+        hideElement("submitFinallyBtn");
+        hideElement("confirmationText"); // Add this line to hide the confirmation text
 
-            // Make a GET request to retrieve fitness info
-            const fitnessResponse = await fetch(`/api/fitness_info/${studentId}`);
 
-            if (fitnessResponse.ok) {
-                const fitnessInfoData = await fitnessResponse.json();
+        // Show the thank you message
+        document.getElementById("thankYouText").classList.remove("hidden");
+    } catch (error) {
+        console.error('Error during final form submission:', error);
+    }
+}
 
-                if (fitnessInfoData) {
-                    // Combine student and fitness info data
-                    const combinedData = [studentData, fitnessInfoData];
-                    
-                    // Display the combined data
-                    displayCombinedData(combinedData);
-                } else {
-                    console.warn('Fitness info data is null:', fitnessInfoData);
-                    
-                    // Display student data even if fitness info is not available
-                    const combinedData = [studentData, null];
-                    displayCombinedData(combinedData);
-                }
-            } else if (fitnessResponse.status === 404) {
-                console.warn('Fitness info data not found:', fitnessResponse.statusText);
-                
-                // Display student data even if fitness info is not available
-                const combinedData = [studentData, null];
-                displayCombinedData(combinedData);
-            } else {
-                console.error('Error fetching fitness info data:', fitnessResponse.status, fitnessResponse.statusText);
-            }
-        } else if (studentResponse.status === 404) {
-            console.warn('Student data not found:', studentResponse.statusText);
 
-            // Display an appropriate message or take corrective action
-        } else {
-            console.error('Error fetching student data:', studentResponse.status, studentResponse.statusText);
+// Function to update submitted data
+async function updateSubmittedData() {
+    // Set the form submission flag to true
+    isFormSubmitted = true;
+
+    // Make another request to get the latest data from the server
+    const latestFitnessInfoResponse = await fetch(`/api/fitness_info/${currentStudentId}`);
+    const latestFitnessInfoData = await latestFitnessInfoResponse.json();
+
+    // Check if the response is successful
+    if (latestFitnessInfoResponse.ok) {
+        // Set the submittedData variable with the server response data
+        submittedData = [null, latestFitnessInfoData];
+
+        // Log the submittedData to check its contents
+        console.log('submittedData:', submittedData);
+    } else if (latestFitnessInfoResponse.status === 404) {
+        // Handle the case where the fitness information is not found
+        console.warn('Fitness info not found for ID:', currentStudentId);
+        console.warn('Server Response:', latestFitnessInfoResponse.statusText);
+
+        // Optionally, you can show a user-friendly message or perform other actions
+        alert('Fitness information not found for the selected student.');
+    } else {
+        console.error('Error retrieving existing fitness info:', latestFitnessInfoResponse.statusText);
+
+        // Optionally, you can log additional details or show an error message
+        alert('An error occurred while retrieving fitness information. Please try again later.');
+    }
+}
+
+async function deleteRecord() {
+    try {
+        console.log('isFormSubmitted:', isFormSubmitted);
+        console.log('submittedData:', submittedData);
+
+        if (!isFormSubmitted) {
+            console.warn('Waiting for form submission to complete...');
+            return;
+        }
+
+        // Check if submittedData is available and is an array with at least two elements
+        if (!submittedData || !Array.isArray(submittedData) || submittedData.length < 2) {
+            console.error('Invalid or missing fitness info submittedData:', submittedData);
+            return;
+        }
+
+        // Extract the fitness info data at index 1
+        const fitnessInfoData = submittedData[1];
+
+        console.log('fitnessInfoData:', fitnessInfoData);
+
+        // Check if fitnessInfoData has the necessary properties, including 'id'
+        if (!fitnessInfoData || !fitnessInfoData.id || !fitnessInfoData.id.id) {
+            console.error('Invalid or missing fitness info data:', fitnessInfoData);
+            return;
+        }
+
+        // Extract the id value from the nested structure (fitness info ID)
+        const fitnessInfoId = fitnessInfoData.id.id;
+
+        console.log('fitnessInfoId:', fitnessInfoId);
+
+        // Check if the fitnessInfoId is valid
+        if (!fitnessInfoId) {
+            console.error('Invalid or missing fitness info ID:', fitnessInfoId);
+            return;
+        }
+
+        // Ask for confirmation before deleting
+        const confirmation = confirm('Are you sure you want to delete all fitness info for this student?');
+
+        if (confirmation) {
+            // Call the function to delete all fitness info for the student
+            await deleteAllFitnessInfoForStudent(fitnessInfoId);
+
+            // Clear submitted data
+            clearSubmittedData();
+
+            // Reset the form submission flag
+            isFormSubmitted = false;
+
+            // Show the go back link/button
+            showElement("goBackLink");
         }
     } catch (error) {
-        console.error('Error during combined data retrieval:', error);
-    }
-}
-
-// Function to display combined data
-function displayCombinedData(combinedData) {
-    const dataContainer = document.querySelector(".submitted-data-container");
-
-    // Clear existing content
-    dataContainer.innerHTML = "";
-
-    // Display the combined data if it exists
-    if (combinedData && combinedData.length === 2) {
-        const [studentData, fitnessInfoData] = combinedData;
-
-        // Display student information
-        if (studentData && studentData.id) {
-            dataContainer.innerHTML += `
-                <div class="submitted-student" data-index="${studentData.id.id}">
-                    <strong>First Name:</strong> ${studentData.first_name}<br>
-                    <strong>Last Name:</strong> ${studentData.last_name}<br>
-                    <strong>Age:</strong> ${studentData.age}<br>
-                    <strong>Email:</strong> ${studentData.email}<br>
-                </div>`;
-        } else {
-            console.error('Invalid or missing data properties in studentData:', studentData);
-        }
-
-        // Display fitness information if available
-        if (fitnessInfoData && fitnessInfoData.id) {
-            dataContainer.innerHTML += `
-                <div class="submitted-fitness" data-index="${fitnessInfoData.id.id}">
-                    <strong>Physical Activity:</strong> ${fitnessInfoData.physical_activity ? fitnessInfoData.physical_activity.join(", ") : 'N/A'}<br>
-                    <strong>Exercise Duration:</strong> ${fitnessInfoData.exercise_duration || 'N/A'}<br>
-                    <strong>Anxiety Control:</strong> ${fitnessInfoData.anxiety_control || 'N/A'}<br>
-                    <strong>Sleep Duration:</strong> ${fitnessInfoData.sleep_duration || 'N/A'}<br>
-                    <strong>Quality of Sleep:</strong> ${fitnessInfoData.quality_of_sleep ? fitnessInfoData.quality_of_sleep.join(", ") : 'N/A'}<br>
-                </div>`;
-        } else {
-            console.error('Invalid or missing data properties in fitnessInfoData:', fitnessInfoData);
-        }
-
-        // Display buttons
-        const deleteButton = `<button class="delete-button" data-student-id="${studentData.id.id}">Delete</button>`;
-        const updateButton = `<button class="update-button" data-student-id="${studentData.id.id}">Update</button>`;
-        const submitButton = `<button class="submit-button" data-student-id="${studentData.id.id}">Submit</button>`;
-        dataContainer.innerHTML += `<div class="button-container">${deleteButton} ${updateButton} ${submitButton}</div>`;
-
-        // Attach event listeners to the delete, update, and submit buttons
-        document.querySelector('.delete-button').addEventListener('click', () => deleteRecord());
-        document.querySelector('.update-button').addEventListener('click', () => updateRecord());
-        document.querySelector('.submit-button').addEventListener('click', () => submitRecord());
-    } else {
-        console.error('Invalid or missing combinedData:', combinedData);
+        console.error('Error during record deletion:', error);
     }
 }
 
 
+// Function to delete all fitness info for a student
+async function deleteAllFitnessInfoForStudent(studentId) {
+    try {
+        // Make a DELETE request to delete all fitness info for the student
+        const response = await fetch(`/api/fitness_info/${studentId}`, {
+            method: 'DELETE',
+        });
 
+        // Log the response received from the server
+        console.log('Delete request response:', response);
+
+        if (response.ok) {
+            // The server should return a JSON object with a 'message' property
+            const responseData = await response.json();
+            
+            console.log(responseData.message);  // Log the success message
+
+            // Optionally, you can perform additional actions after deletion if needed
+        } else {
+            console.error('Error during fitness info deletion:', response.status, response.statusText);
+
+            // Log more details about the error
+            const errorData = await response.json();
+            console.error('Error Data:', errorData);
+
+            // Optionally, you can display an error message to the user
+            alert('Error during fitness info deletion. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error during fitness info deletion:', error);
+
+        // Optionally, you can display an error message to the user
+        alert('An unexpected error occurred during fitness info deletion. Please try again later.');
+    }
+}
+
+  
 
 
 // Function to update a record
@@ -230,209 +299,47 @@ async function updateRecord() {
             return;
         }
 
-        // Get the updated data from the form
-        const updatedFormData = new FormData(document.getElementById("fitnessInfoForm"));
+        // Retrieve the existing fitness info for the student
+        const existingFitnessInfoResponse = await fetch(`/api/fitness_info/${currentStudentId}`);
+        const existingFitnessInfoData = await existingFitnessInfoResponse.json();
 
-        // Make the PUT request to update the fitness info record
-        const updateResponse = await fetch(`/api/fitness_info/${currentStudentId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                "exercise_duration": updatedFormData.get("exercise_duration"),
-                "anxiety_control": updatedFormData.get("anxiety_control"),
-                "sleep_duration": updatedFormData.get("sleep_duration"),
-                // Include other properties needed for the update
-            }),
-        });
+        // Check if the response is successful
+        if (existingFitnessInfoResponse.ok) {
+            // Pre-fill the form with existing fitness information
+            prefillFitnessForm(existingFitnessInfoData);
 
-        if (updateResponse.ok) {
-            const updateResult = await updateResponse.json();
+            // Show the fitness form for updates
+            showElement("fitnessInfoForm");
 
-            if (updateResult.message === 'Fitness info updated successfully') {
-                console.log('Fitness info updated successfully');
-
-                // Retrieve the latest fitness info data from the server after the update
-                const latestFitnessInfoResponse = await fetch(`/api/fitness_info/${currentStudentId}`);
-                const latestFitnessInfoData = await latestFitnessInfoResponse.json();
-
-                // Update the fitness info data in the array
-                const dataIndex = allSubmittedData.findIndex(item => item.id.id === currentStudentId);
-
-                if (dataIndex !== -1) {
-                    allSubmittedData[dataIndex] = latestFitnessInfoData;
-
-                    // Display updated data
-                    displayCombinedData([null, latestFitnessInfoData]);
-
-                    // Reset the form submission flag
-                    isFormSubmitted = false;
-                } else {
-                    console.error('Data not found in the array:', latestFitnessInfoData);
-                }
-            } else {
-                console.error('Error during fitness info update:', updateResult.message);
-            }
-        } else {
-            console.error('Error during fitness info update:', updateResponse.statusText);
-        }
-    } catch (error) {
-        console.error('Error during fitness info update:', error);
-    }
-}
-
-
-// Function to update fitness info
-function updateFitnessInfo(studentId) {
-    try {
-        // Set the form submission flag to false
-        isFormSubmitted = false;
-
-        // Call changeAnswers to populate the form with current data
-        changeFitnessAnswers(studentId);
-
-        // Show the fitness form and hide the thank you message
-        document.getElementById("thankYouMessage").classList.add("hidden");
-        document.getElementById("fitnessForm").classList.remove("hidden");
-    } catch (error) {
-        console.error('Error during fitness info update:', error);
-    }
-}
-
-// Function to change fitness answers
-function changeFitnessAnswers(studentId) {
-    console.log('Fitness Info:', submittedData);
-
-    const form = document.getElementById("fitnessInfoForm");
-
-
-    // Assuming submittedData is an array of objects
-    const firstSubmittedData = submittedData.find(student => student.id.id === studentId);
-
-    if (firstSubmittedData) {
-        // Populate form fields with original data
-        Object.keys(firstSubmittedData).forEach(key => {
-            // Correct key names to match those used in the FormData object
-            const inputElement = form.querySelector(`[name="${key}"]`);
-
-            // Update input values based on the type
-            if (inputElement) {
-                inputElement.value = firstSubmittedData[key];
-            }
-        });
-    }
-
-    // Show the fitness form and hide the thank you message
-    document.getElementById("thankYouMessage").classList.add("hidden");
-    document.getElementById("fitnessForm").classList.remove("hidden");
-}
-
-// Function to delete a record
-async function deleteRecord() {
-    try {
-        if (!isFormSubmitted) {
-            console.warn('Waiting for form submission to complete...');
-            return;
-        }
-
-        // Check if submittedData is available and is an array with at least two elements
-        if (!submittedData || !Array.isArray(submittedData) || submittedData.length < 2) {
-            console.error('Invalid or missing fitness info submittedData:', submittedData);
-            return;
-        }
-
-        // Extract the fitness info data at index 1
-        const fitnessInfoData = submittedData[1];
-
-        // Check if fitnessInfoData has the necessary properties
-        if (!fitnessInfoData || !fitnessInfoData.id || !fitnessInfoData.id.id) {
-            console.error('Invalid or missing fitness info data:', fitnessInfoData);
-            return;
-        }
-
-        // Extract the id value from the nested structure (fitness info ID)
-        const fitnessInfoId = fitnessInfoData.id.id;
-
-        // Check if the fitnessInfoId is valid
-        if (!fitnessInfoId) {
-            console.error('Invalid or missing fitness info ID:', fitnessInfoId);
-            return;
-        }
-
-        // Ask for confirmation before deleting
-        const confirmation = confirm('Are you sure you want to delete this fitness info?');
-
-        if (confirmation) {
-            // Call the function to delete fitness info
-            await deleteFitnessInfo(fitnessInfoId);
-
-            // Clear submitted data
-            clearSubmittedData();
+            // Hide the confirmation container and buttons
+            hideElement("confirmationContainer");
+            hideElement("deleteBtn");
+            hideElement("updateBtn");
+            hideElement("submitFinallyBtn");
 
             // Reset the form submission flag
             isFormSubmitted = false;
+        } else if (existingFitnessInfoResponse.status === 404) {
+            // Handle the case where the fitness information is not found
+            console.warn('Fitness info not found for ID:', currentStudentId);
+            console.warn('Server Response:', existingFitnessInfoResponse.statusText);
 
-            // Show the go back link/button
-            showElement("goBackLink");
-        }
-    } catch (error) {
-        console.error('Error during record deletion:', error);
-    }
-}
-
-// Function to delete fitness info
-async function deleteFitnessInfo(fitnessInfoId) {
-    try {
-        // Make a DELETE request to delete the fitness info
-        const response = await fetch(`/api/fitness_info/${fitnessInfoId}`, {
-            method: 'DELETE',
-        });
-
-        if (response.ok) {
-            console.log('Fitness info deleted successfully');
-
-            // Reset the fitness form
-            resetFitnessForm();
-
-            // Show the delete confirmation popup
-            const confirmation = confirm('Fitness info deleted. Click "OK" to go back to the fitness form and restart.');
-            if (confirmation) {
-                // Redirect to the fitness form or any desired action
-                window.location.href = 'fitness-form.html';
-            }
+            // Optionally, you can show a user-friendly message or perform other actions
+            alert('Fitness information not found for the selected student.');
         } else {
-            console.error('Error during fitness info deletion:', response.status, response.statusText);
+            console.error('Error retrieving existing fitness info:', existingFitnessInfoResponse.statusText);
+
+            // Optionally, you can log additional details or show an error message
+            alert('An error occurred while retrieving fitness information. Please try again later.');
         }
     } catch (error) {
-        console.error('Error during fitness info deletion:', error);
+        console.error('Error during fitness info update:', error);
+
+        // Optionally, you can log additional details or show an error message
+        alert('An unexpected error occurred. Please try again later.');
     }
 }
 
-
-// Function to go back to the form
-function goBackToForm() {
-    // Reset the form and show it again
-    resetFitnessForm();
-
-    // Hide the go back link/button
-    hideElement("goBackLink");
-}
-
-
-// Function to reset the fitness form
-function resetFitnessForm() {
-    // Reset the fitness form and show it again
-    document.getElementById("fitnessForm").reset();
-    hideElement("thankYouMessage");
-    showElement("fitnessForm");
-}
-
-// Function to reset the form
-function resetForm() {
-    // Reset the form and show it again
-    document.getElementById("fitnessInfoForm").reset();
-    hideElement("thankYouMessage");
-    showElement("fitnessForm");
-}
 
 // Function to clear submitted data
 function clearSubmittedData() {
@@ -449,15 +356,21 @@ function getSelectedButtons(groupId) {
 
 // Function to hide an element
 function hideElement(elementId) {
-    // Hide the element with the given ID
-    document.getElementById(elementId).classList.add("hidden");
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.style.display = 'none';
+    }
 }
 
 // Function to show an element
 function showElement(elementId) {
-    // Show the element with the given ID
-    document.getElementById(elementId).classList.remove("hidden");
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.style.display = 'block';
+    }
 }
+
+
 // Function to toggle a button
 function toggleButton(button) {
     if (!isFormSubmitted) {

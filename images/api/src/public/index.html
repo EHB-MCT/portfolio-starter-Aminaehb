@@ -66,26 +66,25 @@
                 <!-- Add more buttons as needed -->
             </div>
 
-            <button type="button" id="submitFitnessInfoBtn">Submit Fitness Info</button>
+            <button type="button" id="submitFitnessInfoBtn">Submit</button>
         </form>
 
-       <!-- Actions after submission -->
-       <div id="actions" class="hidden">
-        <button id="deleteBtn" onclick="deleteRecord()">Delete</button>
-        <button type="button" id="updateBtn" onclick="updateRecord()">Update</button>
-        <button type="button" id="submitFinallyBtn" onclick="submitFinally()">Submit Finally</button>
-    </div>
-
- 
-        <div id="thankYouMessage" class="hidden">
-            <p id="thankYouText">Are you sure you want to submit this form? You can review and update your data before final submission.</p>
+        <div id="confirmationContainer" class="hidden">
+            <p id="confirmationText">Are you sure you want to submit this form? You can review and update your data before final submission.</p>
+            <button id="deleteBtn" class="hidden">Delete</button>
+            <button id="updateBtn" class="hidden">Update</button>
+            <button id="submitFinallyBtn" class="hidden">Submit Finally</button>
+            
+            
+            <p id="thankYouText" class="hidden">Thank you for submitting the form! You can review and update your data before final submission.</p>
             <!-- Display submitted and updated data -->
             <div class="first-submitted-data-container"></div>
             <div class="updated-submitted-data-container"></div>
             <div class="submitted-data-container"></div>
             <div id="submittedData"></div>
         </div>
-        <a href="#" id="goBackLink" class="hidden" onclick="goBackToForm()">Click here to go back to the form</a>
+        
+      
 
     </div>
  

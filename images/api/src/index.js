@@ -285,32 +285,36 @@ app.get('/api/fitness_info', async (req, res) => {
  * @param - The HTTP response object.
  * @returns - The HTTP response containing either fitness information or an error.
  */
+// Modify the endpoint for retrieving fitness information by ID
 app.get('/api/fitness_info/:id', async (req, res) => {
-    const fitnessId = req.params.id;
-  
-    try {
+  const fitnessId = req.params.id;
+
+  try {
       // Retrieve fitness information by ID from the 'fitness_info' table
       const fitnessInfo = await db('fitness_info').where({ id: fitnessId }).first();
-  
+
       // Check if the fitness information exists
       if (!fitnessInfo) {
-        return res.status(404).send({
-          error: "Fitness information not found",
-        });
+          return res.status(404).send({
+              error: "Fitness information not found",
+          });
       }
-  
+
+      // Include the 'id' property in the response
+      fitnessInfo.id = { id: fitnessId };
+
       // Send the retrieved fitness information as a response
       res.status(200).send(fitnessInfo);
-    } catch (error) {
+  } catch (error) {
       // Handle errors and send an error response
       console.error(error);
       res.status(500).send({
-        error: "Something went wrong",
-        value: error,
+          error: "Something went wrong",
+          value: error,
       });
-    }
-  });
-  
+  }
+});
+
 
 /**
  * POST endpoint for creating a new entry in the 'fitness_info' table.
@@ -327,7 +331,7 @@ app.post('/api/fitness_info', async (req, res) => {
   }
 
   // Destructure the required and optional parameters from the request body
-  const { id, student_id, physical_activity, exercise_duration, anxiety_control, sleep_duration, quality_of_sleep } = req.body;
+  const { student_id, physical_activity, exercise_duration, anxiety_control, sleep_duration, quality_of_sleep } = req.body;
 
   // Check if sleep_duration is provided, if not, set a default value or handle it accordingly
   const actualSleepDuration = sleep_duration || 0; // Set a default value or handle it based on your business logic
@@ -335,7 +339,6 @@ app.post('/api/fitness_info', async (req, res) => {
   try {
       // Insert a new entry into the 'fitness_info' table
       await db('fitness_info').insert({
-          id,  // Assuming 'id' is provided in the request body
           student_id,
           physical_activity,
           exercise_duration,
@@ -343,6 +346,7 @@ app.post('/api/fitness_info', async (req, res) => {
           sleep_duration: actualSleepDuration,  // Use the actual sleep duration
           quality_of_sleep,
       });
+      
 
       // Log a message to the terminal
       console.log('Fitness info submitted successfully:', req.body);
@@ -350,6 +354,7 @@ app.post('/api/fitness_info', async (req, res) => {
       // Send a success response
       res.status(201).json({
           message: 'Fitness info created successfully',
+          data: req.body,  
       });
   } catch (error) {
       // Handle errors and send an error response
@@ -426,6 +431,7 @@ app.put('/api/fitness_info/:id', async (req, res) => {
  * @param - The HTTP response object.
  * @returns - The HTTP response containing either a success message or an error.
  */
+// DELETE endpoint for removing fitness information by ID.
 app.delete('/api/fitness_info/:id', async (req, res) => {
   const fitnessId = req.params.id;
 
@@ -445,12 +451,12 @@ app.delete('/api/fitness_info/:id', async (req, res) => {
     // Log a message to the terminal
     console.log('Fitness info deleted successfully. ID:', fitnessId);
 
-    // Send a success response
+    // Send a success response with the deleted fitness info data
     res.status(200).send({
       message: 'Fitness info deleted successfully',
+      data: existingFitnessInfo, // Include the deleted fitness info data in the response
     });
   } catch (error) {
-    // Handle errors and send an error response
     console.error(error);
     res.status(500).send({
       error: "Something went wrong",
@@ -458,6 +464,7 @@ app.delete('/api/fitness_info/:id', async (req, res) => {
     });
   }
 });
+
 
 app.listen(3000, (error)=> {
     if(!error){
