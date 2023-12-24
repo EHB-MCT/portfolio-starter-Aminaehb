@@ -134,8 +134,6 @@ async function submitFitnessInfo() {
                 showElement("updateBtn");
                 showElement("submitFinallyBtn");
 
-                  // Display the submitted data
-            displaySubmittedData();
             } else {
                 // Log an error if the response indicates failure
                 console.error('Error during fitness info submission:', responseData.message);
