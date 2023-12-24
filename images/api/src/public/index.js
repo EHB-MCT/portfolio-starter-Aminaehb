@@ -6,7 +6,6 @@ let currentStudentId;
 let currentFitnessFormId;
 
 
-
 // Event listeners for buttons
 document.getElementById("submitStudentInfoBtn").addEventListener("click", submitStudentInfo);
 document.getElementById("submitFitnessInfoBtn").addEventListener("click", submitFitnessInfo);
@@ -103,8 +102,8 @@ async function submitFitnessInfo() {
 
                 // Set the form submission flag to true
                 isFormSubmitted = true;
-
-    currentFitnessFormId = responseData.data.id || currentFitnessFormId;
+                
+                currentFitnessFormId = responseData.data.id || currentFitnessFormId;
 
                 // Set the submittedData variable with the server response data
                 submittedData = [null, responseData.data]; // Update the entire array
@@ -189,165 +188,112 @@ async function updateSubmittedData() {
     }
 }
 
-// Function to delete fitness info for a student
-async function deleteFitnessInfo(fitnessFormId) {
-    const url = `/api/fitness_info/${fitnessFormId}`;
-    console.log('Deleting fitness info. URL:', url);
 
-    try {
-        // Make a DELETE request to delete fitness info for the student
-        const response = await fetch(url, {
-            method: 'DELETE',
-        });
-
-        // Check if the response is successful
-        if (response.ok) {
-            // The server should return a JSON object with a 'message' property
-            const responseData = await response.json();
-            console.log(responseData.message);  // Log the success message
-
-            // Optionally, you can perform additional actions after deletion if needed
-        } else {
-            console.error('Error during fitness info deletion:', response.status, response.statusText);
-
-            // Log more details about the error
-            const errorData = await response.json();
-            console.error('Error Data:', errorData);
-
-            // Optionally, you can display an error message to the user
-            alert('Error during fitness info deletion. Please try again.');
-        }
-    } catch (error) {
-        console.error('Error during fitness info deletion:', error);
-
-        // Optionally, you can display an error message to the user
-        alert('An unexpected error occurred during fitness info deletion. Please try again later.');
-    }
-}
 
 // Updated deleteRecord function
 async function deleteRecord() {
     try {
-        console.log('isFormSubmitted:', isFormSubmitted);
-        console.log('submittedData:', submittedData);
-
+        // Check if the form is not submitted yet
         if (!isFormSubmitted) {
             console.warn('Waiting for form submission to complete...');
             return;
         }
 
-        // Check if submittedData is available and is an array with at least two elements
+        // Ensure valid and complete submittedData
         if (!submittedData || !Array.isArray(submittedData) || submittedData.length < 2) {
             console.error('Invalid or missing fitness info submittedData:', submittedData);
             return;
         }
 
-        // Extract the fitness info data at index 1
+        // Extract fitness info data and ID
         const fitnessInfoData = submittedData[1];
+        const fitnessFormId = fitnessInfoData?.id?.id;
 
-        console.log('fitnessInfoData before deletion:', fitnessInfoData);
+        // Show a confirmation dialog
+        const isConfirmed = window.confirm('Are you sure you want to delete your fitness and student info?');
 
-        // Check if fitnessInfoData has the necessary properties, including 'id'
-        if (!fitnessInfoData || !fitnessInfoData.id || !fitnessInfoData.id.id) {
-            console.error('Invalid or missing fitness info data:', fitnessInfoData);
-            return;
-        }
-
-        // Use the stored fitness form ID
-        const fitnessFormIdObject = fitnessInfoData.id;
-        const fitnessFormId = fitnessFormIdObject.id;
-
-        console.log('fitnessFormId before deletion request:', fitnessFormId);
-
-        // Make a request to get the latest data from the server
-        const latestFitnessInfoResponse = await fetch(`/api/fitness_info/${fitnessFormId}`);
-        const latestFitnessInfoData = await latestFitnessInfoResponse.json();
-
-        // Check if the response is successful
-        if (latestFitnessInfoResponse.ok) {
-            // Now, you can use latestFitnessInfoData to perform the deletion
+        if (isConfirmed && fitnessFormId) {
+            // Delete fitness info
             await deleteFitnessInfo(fitnessFormId);
 
-            // Optionally, update the submittedData after deletion
+            // Update submittedData after deletion
             submittedData = [null, null];
 
             // Log the updated submittedData
             console.log('submittedData after deletion:', submittedData);
-        } else if (latestFitnessInfoResponse.status === 404) {
-            // Handle the case where the fitness information is not found
-            console.warn('Fitness info not found for ID:', fitnessFormId);
-            console.warn('Server Response:', latestFitnessInfoResponse.statusText);
 
-            // Optionally, you can show a user-friendly message or perform other actions
-            alert('Fitness information not found for the selected student.');
-        } else {
-            console.error('Error retrieving existing fitness info:', latestFitnessInfoResponse.statusText);
+            // Delete associated student info
+            await deleteStudentInfo(fitnessInfoData.student_id);
 
-            // Optionally, you can log additional details or show an error message
-            alert('An error occurred while retrieving fitness information. Please try again later.');
+            // Reset both forms, hide buttons, and show the student form
+            resetStudentForm();
+            resetFitnessForm();
+            hideElement("deleteBtn");
+            hideElement("updateBtn");
+            hideElement("submitFinallyBtn");
+            hideElement("confirmationText");
+            showElement("studentInfoForm");
         }
     } catch (error) {
         console.error('Error during record deletion:', error);
     }
 }
 
+// Function to delete fitness info for a student
+async function deleteFitnessInfo(fitnessFormId) {
+    const url = `/api/fitness_info/${fitnessFormId}`;
 
-
-
-
-// Function to update a record
-async function updateRecord() {
     try {
-        // Check if form submission is complete
-        if (!isFormSubmitted) {
-            console.warn('Waiting for form submission to complete...');
-            return;
-        }
+        const response = await fetch(url, { method: 'DELETE' });
 
-        // Check if a student ID is available
-        if (!currentStudentId) {
-            console.error('Invalid or missing student ID');
-            return;
-        }
-
-        // Retrieve the existing fitness info for the student
-        const existingFitnessInfoResponse = await fetch(`/api/fitness_info/${currentStudentId}`);
-        const existingFitnessInfoData = await existingFitnessInfoResponse.json();
-
-        // Check if the response is successful
-        if (existingFitnessInfoResponse.ok) {
-            // Pre-fill the form with existing fitness information
-            prefillFitnessForm(existingFitnessInfoData);
-
-            // Show the fitness form for updates
-            showElement("fitnessInfoForm");
-
-            // Hide the confirmation container and buttons
-            hideElement("confirmationContainer");
-            hideElement("deleteBtn");
-            hideElement("updateBtn");
-            hideElement("submitFinallyBtn");
-
-            // Reset the form submission flag
-            isFormSubmitted = false;
-        } else if (existingFitnessInfoResponse.status === 404) {
-            // Handle the case where the fitness information is not found
-            console.warn('Fitness info not found for ID:', currentStudentId);
-            console.warn('Server Response:', existingFitnessInfoResponse.statusText);
-
-            // Optionally, you can show a user-friendly message or perform other actions
-            alert('Fitness information not found for the selected student.');
+        if (response.ok) {
+            console.log(await response.json());
         } else {
-            console.error('Error retrieving existing fitness info:', existingFitnessInfoResponse.statusText);
-
-            // Optionally, you can log additional details or show an error message
-            alert('An error occurred while retrieving fitness information. Please try again later.');
+            console.error('Error during fitness info deletion:', response.status, response.statusText);
+            console.error('Error Data:', await response.json());
+            alert('Error during fitness info deletion. Please try again.');
         }
     } catch (error) {
-        console.error('Error during fitness info update:', error);
+        console.error('Error during fitness info deletion:', error);
+        alert('An unexpected error occurred during fitness info deletion. Please try again later.');
+    }
+}
 
-        // Optionally, you can log additional details or show an error message
-        alert('An unexpected error occurred. Please try again later.');
+
+// Function to delete student info
+async function deleteStudentInfo(studentId) {
+    const url = `/api/students/${studentId}`;
+
+    try {
+        const response = await fetch(url, { method: 'DELETE' });
+
+        if (response.ok) {
+            console.log(await response.json());
+        } else {
+            console.error('Error during student info deletion:', response.status, response.statusText);
+            console.error('Error Data:', await response.json());
+            alert('Error during student info deletion. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error during student info deletion:', error);
+        alert('An unexpected error occurred during student info deletion. Please try again later.');
+    }
+}
+
+
+// Function to reset the student form
+function resetStudentForm() {
+    const studentForm = document.getElementById("studentInfoForm");
+    if (studentForm) {
+        studentForm.reset();
+    }
+}
+
+// Function to reset the fitness form
+function resetFitnessForm() {
+    const fitnessForm = document.getElementById("fitnessInfoForm");
+    if (fitnessForm) {
+        fitnessForm.reset();
     }
 }
 
