@@ -8,8 +8,8 @@
     <title>Fitness Journey Form</title>
 </head>
 <body>
+      <!-- This container is for the Three.js canvas -->
     <div class="background-container">
-        <!-- This container is for the Three.js canvas -->
         <iframe src="threejs.html" frameborder="0" scrolling="no" width="100%" height="100%"></iframe>
     </div>
  
@@ -31,12 +31,11 @@
             <label for="email">Email</label>
             <input type="email" id="email" name="email" placeholder="Your email.." required>
 
-            <button type="button" id="submitStudentInfoBtn">Submit</button>
+            <button type="button" id="submitStudentInfoBtn" class="next-btn">Next</button>
         </form>
 
         <!-- Second Form (Fitness Info) - Initially hidden -->
         <form id="fitnessInfoForm" class="hidden">
-            <!-- Include fields related to fitness info -->
             <div class="button-group" id="physical-activity-group">
                 <label for="physical-activity">Physical Activity:</label>
                 <button type="button">Walking</button>
@@ -55,7 +54,7 @@
                 <input type="range" id="anxiety-control" name="anxiety_control" min="1" max="4" step="1">
             </div>
 
-            <!-- Sleep Section -->
+
             <label for="sleep-duration">Sleep Duration (hours per night):</label>
             <input type="number" id="sleep-duration" name="sleep_duration" placeholder="e.g., 7">
 
@@ -63,17 +62,16 @@
                 <label for="quality-of-sleep">Quality of Sleep:</label>
                 <button type="button" id="restfulSleepBtn">Restful</button>
                 <button type="button" id="disturbedSleepBtn">Disturbed</button>
-                <!-- Add more buttons as needed -->
             </div>
 
-            <button type="button" id="submitFitnessInfoBtn">Submit</button>
+            <button type="button" id="submitFitnessInfoBtn" class="next-btn">Next</button>
         </form>
 
         <div id="confirmationContainer" class="hidden">
             <p id="confirmationText">Are you sure you want to submit this form? You can review and update your data before final submission.</p>
             <button id="deleteBtn" class="hidden">Delete</button>
             <button id="updateBtn" class="hidden">Update</button>
-            <button id="submitFinallyBtn" class="hidden">Submit Finally</button>
+            <button id="submitFinallyBtn" class="hidden">Submit</button>
             
             
             <p id="thankYouText" class="hidden">Thank you for submitting the form! You can review and update your data before final submission.</p>

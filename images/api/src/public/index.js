@@ -146,11 +146,12 @@ function submitFinally() {
         hideElement("deleteBtn");
         hideElement("updateBtn");
         hideElement("submitFinallyBtn");
-        hideElement("confirmationText"); // Add this line to hide the confirmation text
 
+         showElement("confirmationText");
 
         // Show the thank you message
         document.getElementById("thankYouText").classList.remove("hidden");
+
     } catch (error) {
         console.error('Error during final form submission:', error);
     }
@@ -188,6 +189,93 @@ async function updateSubmittedData() {
     }
 }
 
+// Function to load existing fitness data
+async function loadExistingFitnessData() {
+    try {
+        // Check if a fitness form ID is available
+        if (!currentFitnessFormId || !currentFitnessFormId.id) {
+            console.error('Invalid or missing fitness form ID');
+            return;
+        }
+
+        // Extract the ID from the object
+        const fitnessFormId = currentFitnessFormId.id;
+
+        // Make a GET request to fetch existing fitness data
+        const response = await fetch(`/api/fitness_info/${fitnessFormId}`);
+
+        // Check if the response is successful
+        if (response.ok) {
+            const existingData = await response.json();
+
+            // Pre-fill the fitness form with existing data
+            prefillFitnessForm(existingData);
+
+            console.log('Existing Fitness Data Loaded Successfully:', existingData);
+        } else {
+            console.error('Error loading existing fitness data:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error loading existing fitness data:', error);
+    }
+}
+
+
+// Function to update a record
+async function updateRecord() {
+    try {
+        // Check if form submission is complete
+        if (!isFormSubmitted) {
+            console.warn('Waiting for form submission to complete...');
+            return;
+        }
+
+        // Check if a fitness form ID is available
+        if (!currentFitnessFormId) {
+            console.error('Invalid or missing fitness form ID');
+            return;
+        }
+
+        // Directly pre-fill the fitness form with existing data
+        await prefillFitnessFormById(currentFitnessFormId);
+
+        // Show the fitness form with the loaded data
+        showElement("fitnessInfoForm");
+
+        // Hide the confirmation container and buttons
+        hideElement("confirmationContainer");
+        hideElement("deleteBtn");
+        hideElement("updateBtn");
+        hideElement("submitFinallyBtn");
+        hideElement("confirmationText");
+
+        // Optionally, you can clear the existing submitted data containers
+        clearSubmittedData();
+    } catch (error) {
+        console.error('Error during fitness info update:', error);
+    }
+}
+
+
+// Function to pre-fill the fitness form with existing data by ID
+async function prefillFitnessFormById(fitnessFormId) {
+    try {
+        // Make a GET request to fetch existing fitness data by ID
+        const response = await fetch(`/api/fitness_info/${fitnessFormId}`);
+
+        // Check if the response is successful
+        if (response.ok) {
+            const existingData = await response.json();
+            // Pre-fill the fitness form with existing data
+            prefillFitnessForm(existingData);
+            console.log('Existing Fitness Data Loaded Successfully:', existingData);
+        } else {
+            console.error('Error loading existing fitness data:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error loading existing fitness data:', error);
+    }
+}
 
 
 // Updated deleteRecord function
@@ -330,11 +418,10 @@ function showElement(elementId) {
 
 // Function to toggle a button
 function toggleButton(button) {
-    if (!isFormSubmitted) {
-        button.classList.toggle("clicked");
-        console.log("Button state:", button.classList.contains("clicked") ? "clicked" : "not clicked");
-    }
+    button.classList.toggle("clicked");
+    console.log("Button state:", button.classList.contains("clicked") ? "clicked" : "not clicked");
 }
+
 
 // Event listeners for buttons with the class "button-group"
 document.querySelectorAll('.button-group button').forEach(button => {
