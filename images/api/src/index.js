@@ -325,46 +325,65 @@ app.get('/api/fitness_info/:id', async (req, res) => {
  */
 app.post('/api/fitness_info', async (req, res) => {
   if (!req.body) {
-      return res.status(400).json({
-          error: "Request body is missing or empty",
-      });
+    return res.status(400).json({
+      error: "Request body is missing or empty",
+    });
   }
 
   // Destructure the required and optional parameters from the request body
-  const { student_id, physical_activity, exercise_duration, anxiety_control, sleep_duration, quality_of_sleep } = req.body;
+  const {
+    student_id,
+    physical_activity,
+    exercise_duration,
+    anxiety_control,
+    sleep_duration,
+    quality_of_sleep
+  } = req.body;
 
   // Check if sleep_duration is provided, if not, set a default value or handle it accordingly
   const actualSleepDuration = sleep_duration || 0; // Set a default value or handle it based on your business logic
 
+  let fitnessFormId;
+
   try {
-      // Insert a new entry into the 'fitness_info' table
-      await db('fitness_info').insert({
-          student_id,
-          physical_activity,
-          exercise_duration,
-          anxiety_control,
-          sleep_duration: actualSleepDuration,  // Use the actual sleep duration
-          quality_of_sleep,
-      });
-      
+    // Insert a new entry into the 'fitness_info' table and capture the generated ID
+    const [insertedId] = await db('fitness_info').insert({
+      student_id,
+      physical_activity,
+      exercise_duration,
+      anxiety_control,
+      sleep_duration: actualSleepDuration,
+      quality_of_sleep,
+    }).returning('id'); // Use returning to get the ID of the inserted row
 
-      // Log a message to the terminal
-      console.log('Fitness info submitted successfully:', req.body);
+    fitnessFormId = insertedId;
 
-      // Send a success response
-      res.status(201).json({
-          message: 'Fitness info created successfully',
-          data: req.body,  
-      });
+    // Log a message to the terminal
+    console.log('Fitness info submitted successfully. ID:', fitnessFormId);
+
+    // Send a success response with the ID
+    res.status(201).json({
+      message: 'Fitness info created successfully',
+      data: {
+        id: fitnessFormId,
+        student_id,
+        physical_activity,
+        exercise_duration,
+        anxiety_control,
+        sleep_duration: actualSleepDuration,
+        quality_of_sleep,
+      },
+    });
   } catch (error) {
-      // Handle errors and send an error response
-      console.error(error);
-      res.status(500).json({
-          error: "Something went wrong",
-          value: error,
-      });
+    // Handle errors and send an error response if the insertion fails
+    console.error('Error submitting fitness info:', error);
+    res.status(500).json({
+      error: "Something went wrong while creating fitness info",
+      value: error,
+    });
   }
 });
+
 
 
 /**
@@ -451,10 +470,10 @@ app.delete('/api/fitness_info/:id', async (req, res) => {
     // Log a message to the terminal
     console.log('Fitness info deleted successfully. ID:', fitnessId);
 
-    // Send a success response with the deleted fitness info data
+    // Send a success response with the deleted fitness info data, including the ID
     res.status(200).send({
       message: 'Fitness info deleted successfully',
-      data: existingFitnessInfo, // Include the deleted fitness info data in the response
+      data: { id: fitnessId, ...existingFitnessInfo }, // Include the deleted fitness info data with the ID
     });
   } catch (error) {
     console.error(error);
@@ -464,6 +483,7 @@ app.delete('/api/fitness_info/:id', async (req, res) => {
     });
   }
 });
+
 
 
 app.listen(3000, (error)=> {
