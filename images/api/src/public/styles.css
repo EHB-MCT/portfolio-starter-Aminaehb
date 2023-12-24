@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
 
-
 body {
     font-family: 'Archivo Black', sans-serif;    
     margin: 0;
@@ -86,13 +85,10 @@ input[type="button"] {
     transition: background-color 0.3s ease;
 }
 
-
-
 .hidden {
     display: none;
 }
 
-/* Add these styles to your existing styles.css file */
 
 .button-group button {
     width: 100%;
@@ -114,9 +110,6 @@ input[type="button"] {
 .button-group button.active {
     background-color: #555555;
 }
-
-/* Add these styles to your existing styles.css file */
-
 
 #submitBtn,
 #deleteBtn,
@@ -142,31 +135,30 @@ input[type="button"] {
     margin-top: 10px;
     width: 100%;
 }
-/* Add these styles to your existing styles.css file */
+
 
 .button-group button.active {
     background-color: #555555;
 }
 
-/* Add this style to make the "Submit Finally" button similar to "Delete" and "Update" buttons */
 #submitFinallyBtn {
-    background-color: #f44336; /* Red background color */
-    color: white; /* White text color */
-    padding: 10px 20px; /* Adjust padding as needed */
+    background-color: #f44336;
+    color: white; 
+    padding: 10px 20px; 
     border: none;
     border-radius: 5px;
     cursor: pointer;
     margin: 5px;
 }
 
-/* Add this style to handle the hover effect */
+
 #submitFinallyBtn:hover {
-    background-color: #d32f2f; /* Darker red background color on hover */
+    background-color: #d32f2f; 
 }
 
-/* Add this style to make the "Next" buttons similar to other buttons */
+
 .next-btn { 
-    width: 50%;
+    width: 20%;
     background-color: rgba(188, 188, 188, 0.581);
     color: white;
     padding: 12px;
@@ -177,7 +169,7 @@ input[type="button"] {
     transition: background-color 0.3s ease;
 }
 
-/* Add this style to handle the hover effect */
+
 .next-btn:hover {
     background-color: #555555;
 }
