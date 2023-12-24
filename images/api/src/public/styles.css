@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
 
-
 body {
     font-family: 'Archivo Black', sans-serif;    
     margin: 0;
@@ -86,20 +85,37 @@ input[type="button"] {
     transition: background-color 0.3s ease;
 }
 
-
-
 .hidden {
     display: none;
 }
 
 
-/* Add these styles to your existing styles.css file */
+.button-group button {
+    width: 100%;
+    background-color: black;
+    color: white;
+    padding: 12px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button-group button:hover {
+    background-color: #555555;
+}
+
+.button-group button.clicked,
+.button-group button.active {
+    background-color: #555555;
+}
 
 #submitBtn,
 #deleteBtn,
 #updateBtn {
     width: 100%;
-    background-color: black;
+    background-color: rgba(188, 188, 188, 0.581);
     color: white;
     padding: 12px;
     border: none;
@@ -117,5 +133,43 @@ input[type="button"] {
 #deleteBtn,
 #updateBtn {
     margin-top: 10px;
-    width: 48%;
+    width: 100%;
+}
+
+
+.button-group button.active {
+    background-color: #555555;
+}
+
+#submitFinallyBtn {
+    background-color: #f44336;
+    color: white; 
+    padding: 10px 20px; 
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+
+#submitFinallyBtn:hover {
+    background-color: #d32f2f; 
+}
+
+
+.next-btn { 
+    width: 20%;
+    background-color: rgba(188, 188, 188, 0.581);
+    color: white;
+    padding: 12px;
+    margin: 5px ;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+
+.next-btn:hover {
+    background-color: #555555;
 }
