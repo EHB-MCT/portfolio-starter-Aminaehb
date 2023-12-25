@@ -13,7 +13,7 @@ describe('GET /students', () => {
   });
 
   test('should return the correct student record', async () => {
-    const studentId = 1;
+    const studentId = 667;
     const response = await request(app).get(`/students/${studentId}`);
 
     // Expect a 200 status for an existing student

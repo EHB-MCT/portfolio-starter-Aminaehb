@@ -24,7 +24,7 @@ describe('POST /api/students/:id', () => {
   });
   
   test('should return the correct student record', async () => {
-    const studentId = 1;
+    const studentId = 236;
     const response = await request(app)
     .post(`/api/students/${studentId}`)
     .send(exampleStudent)
