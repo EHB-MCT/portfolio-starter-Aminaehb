@@ -73,34 +73,41 @@ app.get('/api/students', async (req, res) => {
  * @returns - The HTTP response containing the requested student's information or an error message.
  */
 
-app.get('/api/fitness_info/:id', async (req, res) => {
-  const fitnessId = req.params.id;
+/**
+ * GET endpoint for retrieving a specific student by ID.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing either the student information or an error.
+ */
+app.get('/api/students/:id', async (req, res) => {
+  const studentId = req.params.id;
 
   try {
-    // Convert fitnessId to an integer
-    const fitnessIdInt = parseInt(fitnessId);
+    // Convert studentId to an integer
+    const studentIdInt = parseInt(studentId);
 
-    if (isNaN(fitnessIdInt)) {
+    if (isNaN(studentIdInt)) {
       return res.status(400).send({
-        error: "Invalid fitness form ID",
+        error: "Invalid student ID",
       });
     }
 
-    // Retrieve fitness information by ID from the 'fitness_info' table
-    const fitnessInfo = await db('fitness_info').where({ fitness_form_id: fitnessIdInt }).first();
+    // Retrieve student information by ID from the 'students' table
+    const studentInfo = await db('students').where("id", studentIdInt).first();
 
-    // Check if the fitness information exists
-    if (!fitnessInfo) {
+    // Check if the student information exists
+    if (!studentInfo) {
       return res.status(404).send({
-        error: "Fitness information not found",
+        error: "Student not found",
       });
     }
 
-    // Include the 'fitness_form_id' property in the response
-    fitnessInfo.fitness_form_id = fitnessIdInt;
+    // Include the 'id' property in the response
+    studentInfo.id = studentIdInt;
 
-    // Send the retrieved fitness information as a response
-    res.status(200).send(fitnessInfo);
+    // Send the retrieved student information as a response
+    res.status(200).send(studentInfo);
   } catch (error) {
     // Handle errors and send an error response
     console.error(error);
@@ -110,6 +117,7 @@ app.get('/api/fitness_info/:id', async (req, res) => {
     });
   }
 });
+
 /**
  * POST endpoint for creating a new student.
  * 
@@ -118,7 +126,7 @@ app.get('/api/fitness_info/:id', async (req, res) => {
  * @returns - The HTTP response containing either a success message or an error.
  */
 
-app.post('/api/students', async (req, res) => {
+app.post('/api/students/:id', async (req, res) => {
   console.log('Received POST request:', req.body);
 
   if (!req.body) {
@@ -129,31 +137,44 @@ app.post('/api/students', async (req, res) => {
 
   const { first_name, last_name, age, email } = req.body;
 
+  const studentId = parseInt(req.params.id);
+
   try {
-    const [id] = await db('students').insert({
-      first_name,
-      last_name,
-      age,
-      email,
-    }).returning('id');
-  
-    const createdStudent = {
-      id,
+    // Check if the student with the given ID exists
+    const existingStudent = await db('students').select("*").where("id", studentId);
+
+    if (existingStudent.length === 0) {
+      return res.status(404).json({
+        error: "Student not found",
+      });
+    }
+
+    // Update the existing student record
+    await db('students')
+      .where("id", studentId)
+      .update({
+        first_name,
+        last_name,
+        age,
+        email,
+      });
+
+    const updatedStudent = {
+      id: studentId,
       first_name,
       last_name,
       age,
       email,
     };
-  
-  
-    return res.status(201).json([createdStudent]); // Wrap the object in an array
+
+    return res.status(200).json(updatedStudent);
   } catch (error) {
-    console.error('Error during student insertion:', error);
+    console.error('Error during student update:', error);
     return res.status(500).json({
       error: "Internal Server Error",
       message: error.message || "An internal server error occurred",
     });
-  }  
+  }
 });
 
 
@@ -164,8 +185,15 @@ app.post('/api/students', async (req, res) => {
  * @param - The HTTP response object.
  * @returns - The HTTP response containing either a success message or an error.
  */
-app.put('/api/fitness_info/:id', async (req, res) => {
-  const fitnessId = req.params.id;
+/**
+ * PUT endpoint for updating a specific student by ID.
+ * 
+ * @param - The HTTP request object.
+ * @param - The HTTP response object.
+ * @returns - The HTTP response containing either a success message or an error.
+ */
+app.put('/api/students/:id', async (req, res) => {
+  const studentId = req.params.id;
 
   // Ensure that the request body is not empty
   if (!req.body) {
@@ -175,43 +203,41 @@ app.put('/api/fitness_info/:id', async (req, res) => {
   }
 
   // Destructure the parameters from the request body
-  const { student_id, physical_activity, exercise_duration, anxiety_control, sleep_duration, quality_of_sleep } = req.body;
+  const { first_name, last_name, age, email } = req.body;
 
   try {
-    // Convert fitnessId to an integer
-    const fitnessIdInt = parseInt(fitnessId);
+    // Convert studentId to an integer
+    const studentIdInt = parseInt(studentId);
 
-    if (isNaN(fitnessIdInt)) {
+    if (isNaN(studentIdInt)) {
       return res.status(400).send({
-        error: "Invalid fitness form ID",
+        error: "Invalid student ID",
       });
     }
 
-    // Check if the fitness information exists
-    const existingFitnessInfo = await db('fitness_info').where({ fitness_form_id: fitnessIdInt }).first();
+    // Check if the student with the given ID exists
+    const existingStudent = await db('students').where("id", studentIdInt).first();
 
-    if (!existingFitnessInfo) {
+    if (!existingStudent) {
       return res.status(404).send({
-        error: "Fitness information not found",
+        error: "Student not found",
       });
     }
 
-    // Update the fitness information in the 'fitness_info' table
-    await db('fitness_info').where({ fitness_form_id: fitnessIdInt }).update({
-      student_id,
-      physical_activity,
-      exercise_duration,
-      anxiety_control,
-      sleep_duration,
-      quality_of_sleep,
+    // Update the student information in the 'students' table
+    await db('students').where("id", studentIdInt).update({
+      first_name,
+      last_name,
+      age,
+      email,
     });
 
     // Log a message to the terminal
-    console.log('Fitness info updated successfully:', req.body);
+    console.log('Student info updated successfully:', req.body);
 
     // Send a success response
     res.status(200).send({
-      message: 'Fitness info updated successfully',
+      message: 'Student info updated successfully',
     });
   } catch (error) {
     // Handle errors and send an error response
@@ -298,31 +324,39 @@ app.get('/api/fitness_info/:id', async (req, res) => {
   const fitnessId = req.params.id;
 
   try {
-      // Retrieve fitness information by ID from the 'fitness_info' table
-      const fitnessInfo = await db('fitness_info').where({ id: fitnessId }).first();
+    // Convert fitnessId to an integer
+    const fitnessIdInt = parseInt(fitnessId);
 
-      // Check if the fitness information exists
-      if (!fitnessInfo) {
-          return res.status(404).send({
-              error: "Fitness information not found",
-          });
-      }
-
-      // Include the 'id' property in the response
-      fitnessInfo.id = { id: fitnessId };
-
-      // Send the retrieved fitness information as a response
-      res.status(200).send(fitnessInfo);
-  } catch (error) {
-      // Handle errors and send an error response
-      console.error(error);
-      res.status(500).send({
-          error: "Something went wrong",
-          value: error,
+    if (isNaN(fitnessIdInt)) {
+      return res.status(400).send({
+        error: "Invalid fitness form ID",
       });
+    }
+
+    // Retrieve fitness information by ID from the 'fitness_info' table
+    const fitnessInfo = await db('fitness_info').where({ fitness_form_id: fitnessIdInt }).first();
+
+    // Check if the fitness information exists
+    if (!fitnessInfo) {
+      return res.status(404).send({
+        error: "Fitness information not found",
+      });
+    }
+
+    // Include the 'fitness_form_id' property in the response
+    fitnessInfo.fitness_form_id = fitnessIdInt;
+
+    // Send the retrieved fitness information as a response
+    res.status(200).send(fitnessInfo);
+  } catch (error) {
+    // Handle errors and send an error response
+    console.error(error);
+    res.status(500).send({
+      error: "Something went wrong",
+      value: error,
+    });
   }
 });
-
 
 /**
  * POST endpoint for creating a new entry in the 'fitness_info' table.
