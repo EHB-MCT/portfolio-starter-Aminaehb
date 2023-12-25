@@ -56,10 +56,69 @@ function checkStudentEmail(email) {
      return typeof email === "string" && email.length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+/**
+ * This function checks the validity of the 'physical_activity' field based on certain conditions.
+ * 
+ * @param {string} value - The value of the 'physical_activity' field to be validated.
+ * @returns {boolean} - True if the value is valid, false otherwise.
+ */
+function validatePhysicalActivity(value) {
+    return typeof value === 'string' && value.length > 0;
+}
+
+/**
+ * This function checks the validity of the 'exercise_duration' field based on certain conditions.
+ * 
+ * @param {number} value - The value of the 'exercise_duration' field to be validated.
+ * @returns {boolean} - True if the value is valid, false otherwise.
+ */
+function validateExerciseDuration(value) {
+    return typeof value === 'number' && !isNaN(value) && Number.isInteger(value) && value > 0;
+}
+
+/**
+ * This function checks the validity of the 'anxiety_control' field based on certain conditions.
+ * 
+ * @param {number} value - The value of the 'anxiety_control' field to be validated.
+ * @returns {boolean} - True if the value is valid, false otherwise.
+ */
+function validateAnxietyControl(value) {
+    // Assuming 'anxiety_control' should be a non-negative integer
+    return Number.isInteger(value) && value >= 0;
+}
+
+/**
+ * This function checks the validity of the 'sleep_duration' field based on certain conditions.
+ * 
+ * @param {number} value - The value of the 'sleep_duration' field to be validated.
+ * @returns {boolean} - True if the value is valid, false otherwise.
+ */
+function validateSleepDuration(value) {
+    // Assuming 'sleep_duration' should be a non-negative integer
+    return Number.isInteger(value) && value >= 0;
+}
+
+
+/**
+ * This function checks the validity of the 'quality_of_sleep' field based on certain conditions.
+ * 
+ * @param {string} value - The value of the 'quality_of_sleep' field to be validated.
+ * @returns {boolean} - True if the value is valid, false otherwise.
+ */
+function validateQualityOfSleep(value) {
+    return typeof value === 'string' && value.length > 0;
+}
+
+
 
 module.exports = {
     checkStudentFirstName,
     checkStudentAge,
     checkStudentEmail,
-    checkStudentLastName
+    checkStudentLastName,
+    validatePhysicalActivity,
+    validateExerciseDuration,
+    validateAnxietyControl,
+    validateSleepDuration,
+    validateQualityOfSleep
 };
