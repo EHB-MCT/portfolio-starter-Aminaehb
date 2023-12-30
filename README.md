@@ -24,17 +24,23 @@ The project is currently in development, and improvements and features are activ
 ## API Endpoints and Actions
 
 ### Students
-- **GET /api/students:** Get all students.
-- **GET /api/fitness_info/:id:** Get fitness information by ID.
-- **POST /api/students:** Create a new student (Parameters: first_name - string, last_name - string, age - number, email - string).
-- **PUT /api/fitness_info/:id:** Update fitness information by ID.
-- **DELETE /api/students/:id:** Delete a student by ID.
+
+| Endpoint                       | Description                                                    |
+|---------------------------------|----------------------------------------------------------------|
+| **GET /api/students**           | Get all students.                                              |
+| **GET /api/fitness_info/:id**   | Get fitness information by ID.                                 |
+| **POST /api/students**          | Create a new student. (Parameters: first_name - string, last_name - string, age - number, email - string) |
+| **PUT /api/fitness_info/:id**   | Update fitness information by ID.                              |
+| **DELETE /api/students/:id**    | Delete a student by ID.                                        |
 
 ### Fitness Information
-- **GET /api/fitness_info:** Get all fitness information.
-- **POST /api/fitness_info:** Create new fitness information (Parameters: student_id - number, physical_activity - string, exercise_duration - string, anxiety_control - string, sleep_duration - string, quality_of_sleep - string).
-- **PUT /api/fitness_info/:id:** Update fitness information by ID.
-- **DELETE /api/fitness_info/:id:** Delete fitness information by ID.
+
+| Endpoint                        | Description                                                                                          |
+|----------------------------------|------------------------------------------------------------------------------------------------------|
+| **GET /api/fitness_info**        | Get all fitness information.                                                                        |
+| **POST /api/fitness_info**       | Create new fitness information. (Parameters: student_id - number, physical_activity - string, exercise_duration - string, anxiety_control - string, sleep_duration - string, quality_of_sleep - string) |
+| **PUT /api/fitness_info/:id**    | Update fitness information by ID.                                                                   |
+| **DELETE /api/fitness_info/:id** | Delete fitness information by ID.                                                                   |
 
 ### Testing
 Testing is performed in the `feat/testing` branch. Please note that testing is not implemented in the development branch due to an error. 
