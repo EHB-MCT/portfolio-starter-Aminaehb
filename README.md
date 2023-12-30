@@ -28,7 +28,7 @@ The project is currently in development, and improvements and features are activ
 | Endpoint                       | Description                                                    |
 |---------------------------------|----------------------------------------------------------------|
 | **GET /api/students**           | Get all students.                                              |
-| **GET /api/fitness_info/:id**   | Get fitness information by ID.                                 |
+| **GET /api/students/:id**       | Get student information by ID.                                 |
 | **POST /api/students**          | Create a new student. (Parameters: first_name - string, last_name - string, age - number, email - string) |
 | **PUT /api/fitness_info/:id**   | Update fitness information by ID.                              |
 | **DELETE /api/students/:id**    | Delete a student by ID.                                        |

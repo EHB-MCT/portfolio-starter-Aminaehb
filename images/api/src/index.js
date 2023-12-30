@@ -74,20 +74,20 @@ app.get('/api/students', async (req, res) => {
  */
 
 app.get('/api/fitness_info/:id', async (req, res) => {
-  const fitnessId = req.params.id;
+  const studentId = req.params.id;
 
   try {
-    // Convert fitnessId to an integer
-    const fitnessIdInt = parseInt(fitnessId);
+    // Convert studentId to an integer
+    const studentIdInt = parseInt(studentId);
 
-    if (isNaN(fitnessIdInt)) {
+    if (isNaN(studentIdInt)) {
       return res.status(400).send({
-        error: "Invalid fitness form ID",
+        error: "Invalid student ID",
       });
     }
 
-    // Retrieve fitness information by ID from the 'fitness_info' table
-    const fitnessInfo = await db('fitness_info').where({ fitness_form_id: fitnessIdInt }).first();
+    // Retrieve fitness information by student ID from the 'fitness_info' table
+    const fitnessInfo = await db('fitness_info').where({ student_id: studentIdInt }).first();
 
     // Check if the fitness information exists
     if (!fitnessInfo) {
@@ -96,8 +96,8 @@ app.get('/api/fitness_info/:id', async (req, res) => {
       });
     }
 
-    // Include the 'fitness_form_id' property in the response
-    fitnessInfo.fitness_form_id = fitnessIdInt;
+    // Include the 'student_id' property in the response
+    fitnessInfo.student_id = studentIdInt;
 
     // Send the retrieved fitness information as a response
     res.status(200).send(fitnessInfo);
@@ -110,6 +110,7 @@ app.get('/api/fitness_info/:id', async (req, res) => {
     });
   }
 });
+
 /**
  * POST endpoint for creating a new student.
  * 
