@@ -42,7 +42,7 @@ The project is currently in development, and improvements and features are activ
 | **PUT /api/fitness_info/:id**    | Update fitness information by ID.                                                                   |
 | **DELETE /api/fitness_info/:id** | Delete fitness information by ID.                                                                   |
 
-### Testing
+## Testing
 Testing is performed in the `feat/testing` branch. Please note that testing is not implemented in the development branch due to an error. 
 
 ## Questions and Support
