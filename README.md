@@ -18,7 +18,7 @@ To get started with the project, follow these steps:
 3. **Access the API:**
    - Once the Docker containers are up and running, you can access the API at [http://localhost:8080/]
 
-Development
+## Development
 The project is up and running in the main branch, and improvements and features are actively being added. Contributions and feedback are welcome.
 
 ## API Endpoints and Actions
