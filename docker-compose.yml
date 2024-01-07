@@ -1,0 +1,37 @@
+version: "3.2"
+
+services:
+
+  api:
+    build: ./images/api
+    ports:
+      - 8080:3000
+    volumes:
+      - ./images/api/src:/usr/app/src
+    environment:
+      POSTGRES_USER: 
+      POSTGRES_PASSWORD: 
+      POSTGRES_DB: 
+      POSTGRES_HOST: store
+    depends_on:
+      store:
+        condition: service_healthy 
+    
+
+
+  store:
+    image: postgres:latest
+    ports: 
+      - 5432:5432
+    environment:
+      POSTGRES_USER:
+      POSTGRES_PASSWORD: 
+      POSTGRES_DB:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - ./_backup:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
